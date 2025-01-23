@@ -1,0 +1,14 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=bc
+export PACKAGE_VERSION=7.0.3
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/bc/7.0.3/
+rm -rf ${BUILD_DIRECTORY}/bc-7.0.3
+tar xvf ${DOWNLOADDIR}/bc-7.0.3.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/bc-7.0.3
+	CC="${CROSS_TARGET}-gcc" HOSTCC="gcc" CFLAGS="${CFLAGS} -std=gnu11" ./configure --prefix=/usr
+	eval ${MAKE_AND_INSTALL}
+popd 
+rm -rf ${BUILD_DIRECTORY}/bc-7.0.3

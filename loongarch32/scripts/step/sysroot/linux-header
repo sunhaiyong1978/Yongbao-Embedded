@@ -1,0 +1,18 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=linux-header
+export PACKAGE_VERSION=32bit-test
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/linux-header/32bit-test/
+rm -rf ${BUILD_DIRECTORY}/linux-32bit-test_git
+tar xvf ${DOWNLOADDIR}/linux-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/linux-32bit-test_git
+	
+	make ARCH=${ARCH_FAMILY} mrproper
+	make ARCH=${ARCH_FAMILY} INSTALL_HDR_PATH=dest headers_install
+	find dest/include -name '.*' -delete
+	mkdir -pv ${SYSROOT_DIR}/usr/include
+	cp -rv dest/include/* ${SYSROOT_DIR}/usr/include
+popd 
+rm -rf ${BUILD_DIRECTORY}/linux-32bit-test_git
