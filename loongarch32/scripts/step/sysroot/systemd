@@ -1,0 +1,37 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=systemd
+export PACKAGE_VERSION=257.2
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/systemd/257.2/
+rm -rf ${BUILD_DIRECTORY}/systemd-257.2
+tar xvf ${DOWNLOADDIR}/systemd-257.2.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/systemd-257.2
+	
+	pushd src/basic
+        python3 missing_syscalls.py missing_syscall_def.h $(ls syscalls-*.txt)
+	popd
+	sed -i -e 's/GROUP="render"/GROUP="video"/' \
+           -e 's/GROUP="sgx", //' rules.d/50-udev-default.rules.in
+	sed -i "s@Werror=undef',@& '-Wno-error=format-overflow', '-Wno-error=implicit-function-declaration',@g" meson.build
+
+	mkdir -p build
+	pushd build
+		meson ${MESON_CONFIG} \
+		      -Ddefault-dnssec=no -Dfirstboot=false \
+		      -Dinstall-tests=false -Dldconfig=false -Dsysusers=false \
+		      -Drpmmacrosdir=no -Dhomed=false -Duserdb=false -Dman=false -Dmode=release -Dlogind=true \
+		      -Dpamconfdir=/etc/pam.d \
+		      -Ddbuspolicydir=/usr/share/dbus-1/system.d -Ddbussessionservicedir=/usr/share/dbus-1/services -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
+		      -Dbashcompletiondir=/usr/share/bash-completion/completions \
+		      ..
+		eval ${NINJA_AND_INSTALL}
+	popd
+
+	rm -f ${SYSROOT_DIR}/usr/lib/systemd/system/systemd-networkd-wait-online.service
+
+popd 
+rm -rf ${BUILD_DIRECTORY}/systemd-257.2
+
+set_strip_step "/usr/lib/systemd" "0"

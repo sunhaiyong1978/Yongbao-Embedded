@@ -1,0 +1,23 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=nspr
+export PACKAGE_VERSION=4.36
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/nspr/4.36/
+rm -rf ${BUILD_DIRECTORY}/nspr-4.36
+tar xvf ${DOWNLOADDIR}/nspr-4.36.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/nspr-4.36
+    pushd nspr
+	 
+    for config_i in $(find -name "config.sub")
+    do
+            cp -a -f $(automake --print-libdir)/config.{sub,guess} $(dirname ${config_i})/
+    done
+    ./configure ${COMMON_CONFIG} \
+                --with-mozilla --with-pthreads --enable-64bit
+    make CC="gcc" CFLAGS="" -C config
+    eval ${MAKE_AND_INSTALL}
+    popd
+popd 
+rm -rf ${BUILD_DIRECTORY}/nspr-4.36

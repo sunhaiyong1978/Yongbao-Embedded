@@ -1,0 +1,26 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=ctags
+export PACKAGE_VERSION=5.8
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/ctags/5.8/
+rm -rf ${BUILD_DIRECTORY}/ctags-5.8
+tar xvf ${DOWNLOADDIR}/ctags-5.8.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/ctags-5.8
+	patch -Np1 -i ${SYSDIR}/files/sysroot/ctags/5.8/patches/ctags-5.8-fix_form_fedora.patch 
+	patch -Np1 -i ${SYSDIR}/files/sysroot/ctags/5.8/patches/ctags-5.8-for-gcc_12.patch 
+	 
+	for config_i in $(find -name "config.sub")
+	do
+		cp -a -f ${CROSSTOOLS_DIR}/share/automake*/config.* $(dirname ${config_i})/
+	done
+	if [ ! -f configure ]; then
+		autoreconf -ifv
+	fi
+	 ./configure ${COMMON_CONFIG}  --enable-malloc0returnsnull
+	CC="${CROSS_TARGET}-gcc" CXX="${CROSS_TARGET}-g++" make -j${JOBS}
+        make DESTDIR=${SYSROOT_DIR} install
+	rm -f ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/*.la
+popd 
+rm -rf ${BUILD_DIRECTORY}/ctags-5.8

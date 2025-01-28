@@ -1,0 +1,30 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=gcc
+export PACKAGE_VERSION=32bit-test
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/gcc/32bit-test/
+rm -rf ${BUILD_DIRECTORY}/gcc_git-32bit-test_git
+tar xvf ${DOWNLOADDIR}/gcc_git-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/gcc_git-32bit-test_git
+	
+	sed -i 's@\./fixinc\.sh@-c true@' gcc/Makefile.in
+	mkdir -pv cross-build
+	pushd cross-build
+		../configure --prefix=/usr --libdir=/usr/lib${LIB_SUFF} --build=${CROSS_HOST} \
+		             --host=${CROSS_TARGET} --target=${CROSS_TARGET} \
+		             --enable-__cxa_atexit --enable-threads=posix \
+		             --with-system-zlib --enable-libstdcxx-time \
+		             --enable-checking=release \
+		             --disable-multilib \
+		             --with-build-sysroot=${SYSROOT_DIR} \
+			     --enable-linker-build-id --with-linker-hash-style=gnu --enable-gnu-unique-object --enable-initfini-array --enable-gnu-indirect-function \
+		             --enable-languages=c,c++,fortran,objc,obj-c++,lto
+		make -j${JOBS}
+		make DESTDIR=${SYSROOT_DIR} install
+		ln -sfv /usr/bin/cpp ${SYSROOT_DIR}/lib
+		ln -sfv gcc ${SYSROOT_DIR}/usr/bin/cc
+	popd
+popd 
+rm -rf ${BUILD_DIRECTORY}/gcc_git-32bit-test_git
