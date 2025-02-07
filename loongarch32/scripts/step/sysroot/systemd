@@ -8,7 +8,8 @@ export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/systemd/257.2/
 rm -rf ${BUILD_DIRECTORY}/systemd-257.2
 tar xvf ${DOWNLOADDIR}/systemd-257.2.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/systemd-257.2
-	
+	patch -Np1 -i ${SYSDIR}/files/sysroot/systemd/257.2/patches/0001-systemd-257-add-loongarch32-support.patch 
+	 
 	pushd src/basic
         python3 missing_syscalls.py missing_syscall_def.h $(ls syscalls-*.txt)
 	popd

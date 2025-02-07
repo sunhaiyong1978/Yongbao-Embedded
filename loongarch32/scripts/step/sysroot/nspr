@@ -9,6 +9,7 @@ rm -rf ${BUILD_DIRECTORY}/nspr-4.36
 tar xvf ${DOWNLOADDIR}/nspr-4.36.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/nspr-4.36
     pushd nspr
+    patch -Np2 -i ${SYSDIR}/files/sysroot/nspr/4.36/patches/nspr-4.36-add-loongarch32.patch 
 	 
     for config_i in $(find -name "config.sub")
     do
