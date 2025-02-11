@@ -27,6 +27,9 @@
 %step/host-tools/meson|
 %step/host-tools/MarkupSafe|
 %step/cross-tools/Jinja2|
+%step/host-tools/guile|
+%step/cross-tools/NULL|
+%step/cross-tools/llvm-project|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
@@ -69,7 +72,7 @@
 %step/sysroot/automake|
 %step/sysroot/kmod|
 %step/sysroot/elfutils|f_sysroot_elfutils_bad
-%step/sysroot/libffi|f_sysroot_libffi_bad
+%step/sysroot/libffi|
 %step/sysroot/openssl|
 %step/sysroot/coreutils|
 %step/sysroot/check|
@@ -174,7 +177,7 @@
 %step/sysroot/fribidi|
 %step/sysroot/nettle|
 %step/sysroot/gc|
-%step/sysroot/guile|f_sysroot_guile_bad
+%step/sysroot/guile|
 %step/sysroot/libtasn1|
 %step/sysroot/p11-kit|
 %step/sysroot/gnutls|
@@ -197,6 +200,7 @@
 %step/sysroot/nftables|
 %step/sysroot/python-nftables|
 %step/sysroot/firewalld|
+%step/sysroot/llvm-project|f_sysroot_llvm-project_bad
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
 %step/sysroot/create_base_files|
