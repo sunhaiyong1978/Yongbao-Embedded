@@ -25,7 +25,7 @@ pushd ${BUILD_DIRECTORY}/llvm-project_git-main_git-default_git
               -DLLVM_LINK_LLVM_DYLIB:BOOL=ON -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
               -DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF \
 	      -DLLVM_VERSION_SUFFIX='' \
-	      -Dzstd_LIBRARY:FILEPATH=${SYSROOT_DIR}/usr/lib32/libzstd.so \
+	      -DLLVM_HOST_TRIPLE=${CROSS_TARGET} \
               -DLLVM_DEFAULT_TARGET_TRIPLE=${CROSS_TARGET}
 	eval ${NINJA_AND_INSTALL}
     popd
@@ -37,8 +37,6 @@ qemu-${QEMU_NAME} ${SYSROOT_DIR}/usr/bin/llvm-config "\$@"
 EOF
 chmod +x ${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config
 
-LLVM_DIST_VERSION="$(${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config --version)"
-save_package_version target_base_llvm-project "${LLVM_DIST_VERSION}"
 
 popd 
 rm -rf ${BUILD_DIRECTORY}/llvm-project_git-main_git-default_git
