@@ -199,7 +199,7 @@
 %step/sysroot/libedit|
 %step/sysroot/nftables|
 %step/sysroot/python-nftables|
-%step/sysroot/firewalld|
+%step/sysroot/firewalld|f_sysroot_firewalld_bad
 %step/sysroot/llvm-project|
 %step/sysroot/llvm_runtimes|f_sysroot_llvm_runtimes_bad
 %step/sysroot/dist_sysroot|
