@@ -12,10 +12,8 @@ pushd ${BUILD_DIRECTORY}/tiff-4.7.0
 	mkdir cross-build
 	pushd cross-build
         	CC="${CROSS_TARGET}-gcc" CXX="${CROSS_TARGET}-g++" \
-		cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-loongarch64 \
+		cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${COMMON_DIR}/cmake-cross.cmake \
 	              -DPKG_CONFIG_EXECUTABLE=${SYSDIR}/cross-tools/bin/${CROSS_TARGET}-pkg-config \
-        	      -DCMAKE_SYSROOT=${SYSDIR}/sysroot \
-	              -DCMAKE_FIND_ROOT_PATH=${SYSDIR}/sysroot/usr \
 	              -DGETTEXT_MSGFMT_EXECUTABLE=/bin/msgfmt \
         	      -DGETTEXT_MSGMERGE_EXECUTABLE=/bin/msgmerge \
 		      -DPython_EXECUTABLE=${CROSSTOOLS_DIR}/bin/python3 \
