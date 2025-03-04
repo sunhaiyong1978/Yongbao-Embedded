@@ -9,6 +9,7 @@ rm -rf ${BUILD_DIRECTORY}/inetutils-2.5
 tar xvf ${DOWNLOADDIR}/inetutils-2.5.tar.xz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/inetutils-2.5
  	sed -i "/PATH_PROCNET_DEV/s@no@/proc/net/dev@g" paths
+	CFLAGS="${CFLAGS} -Wno-implicit-function-declaration" \
 	./configure --prefix=/usr --build=${CROSS_HOST} --host=${CROSS_TARGET} \
 	            --disable-logger --disable-whois --disable-rcp \
 	            --disable-rexec --disable-rlogin --disable-rsh \
