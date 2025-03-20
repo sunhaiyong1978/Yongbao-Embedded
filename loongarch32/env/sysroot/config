@@ -30,7 +30,7 @@ export MESON_CONFIG="--prefix=/usr --libdir=/usr/lib${LIB_SUFF} --sysconfdir=/et
 export NINJA_AND_INSTALL="CC=${CROSS_TARGET}-gcc ninja && DESTDIR=${SYSROOT_DIR} ninja install"
 export YONGBAO_TARGET_ARCH=loongarch32
 export YONGBAO_TARGET_ARCH_NAME=loongarch
-export QEMU_TARGET_ARCH=loongarch64
+export QEMU_TARGET_ARCH=loongarch32
 export TARGET_ABI=ilp32d
 export ARCH_NAME=loongarch32
 export ARCH_FAMILY=loongarch

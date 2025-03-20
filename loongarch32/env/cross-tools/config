@@ -27,5 +27,5 @@ export MAKE_AND_INSTALL="make -j${JOBS} && run_step_package_check && make instal
 export PATH=${CROSSTOOLS_DIR}/host-tools/bin:${PATH}
 export YONGBAO_TARGET_ARCH=loongarch32
 export YONGBAO_TARGET_ARCH_NAME=loongarch
-export QEMU_TARGET_ARCH=loongarch64
+export QEMU_TARGET_ARCH=loongarch32
 export TARGET_ABI=lp32
