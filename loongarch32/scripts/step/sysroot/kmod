@@ -8,7 +8,8 @@ export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/kmod/34.1/
 rm -rf ${BUILD_DIRECTORY}/kmod-34.1
 tar xvf ${DOWNLOADDIR}/kmod-34.1.tar.xz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/kmod-34.1
-	autoreconf -ifv
+	rm m4/l*.m4
+	./autogen.sh
 	./configure --prefix=/usr --libdir=/usr/lib${LIB_SUFF} --bindir=/bin \
 	            --sysconfdir=/etc --build=${CROSS_HOST} --host=${CROSS_TARGET} \
 	            --with-xz --with-zstd --with-zlib --disable-manpages \

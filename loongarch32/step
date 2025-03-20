@@ -144,7 +144,7 @@
 %step/sysroot/inih|
 %step/sysroot/dosfstools|
 %step/sysroot/userspace-rcu|
-%step/sysroot/xfsprogs|f_sysroot_xfsprogs_bad
+%step/sysroot/xfsprogs|
 %step/sysroot/libaio|
 %step/sysroot/mdadm|
 %step/sysroot/LVM2|

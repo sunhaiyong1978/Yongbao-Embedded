@@ -1,0 +1,25 @@
+From e9ad84b865bd37b064188842c986ed83b9c9cc18 Mon Sep 17 00:00:00 2001
+From: Sun Haiyong <sunhaiyong@zdbr.net>
+Date: Thu, 20 Mar 2025 06:52:02 +0000
+Subject: [PATCH] xfsprogs 6.13 fix long to off_t type for build error.
+
+---
+ mkfs/proto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mkfs/proto.c b/mkfs/proto.c
+index 6dd3a20..981f5b1 100644
+--- a/mkfs/proto.c
++++ b/mkfs/proto.c
+@@ -20,7 +20,7 @@ static struct xfs_trans * getres(struct xfs_mount *mp, uint blocks);
+ static void rsvfile(xfs_mount_t *mp, xfs_inode_t *ip, long long len);
+ static int newregfile(char **pp, char **fname);
+ static void rtinit(xfs_mount_t *mp);
+-static long filesize(int fd);
++static off_t filesize(int fd);
+ static int slashes_are_spaces;
+ 
+ /*
+-- 
+2.31.1
+
