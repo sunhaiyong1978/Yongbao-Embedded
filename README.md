@@ -28,7 +28,7 @@ git clone https://github.com/sunhaiyong1978/Yongbao-Embedded.git --depth 1
 ```sh
 sudo dnf install @c-development gawk gettext vim wget autoconf texinfo file flex bison \
 		rsync pkg-config cmak ninja tcl gperf \
-		zlib-devel python3-devel libunistring-devel libffi-devel gc-devel libicu-devel
+		zlib-devel python3-devel libunistring-devel libffi-devel gc-devel libicu-devel glib2-devel
 ```
 
 ### Ubuntu系统：
@@ -36,7 +36,7 @@ sudo dnf install @c-development gawk gettext vim wget autoconf texinfo file flex
 ```sh
 sudo apt-get install build-essential gawk gettext vim wget autoconf texinfo file flex bison \
 		rsync pkg-config cmake ninja-build autopoint tcl gperf \
-		zlib1g-dev python3-dev libunistring-dev libffi-dev libgc-dev libicu-dev
+		zlib1g-dev python3-dev libunistring-dev libffi-dev libgc-dev libicu-dev libglib2.0-dev
 ```
 
 ## 基本使用方式：
