@@ -1,0 +1,28 @@
+source env/cross-tools/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=cross-tools
+export STEP_PACKAGENAME=vala
+export PACKAGE_VERSION=0.56.18
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/cross-tools/vala/0.56.18/
+rm -rf ${BUILD_DIRECTORY}/vala-0.56.18
+tar xvf ${DOWNLOADDIR}/vala-0.56.18.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/vala-0.56.18
+    ./configure --prefix=${PREFIX} --disable-valadoc
+    eval ${MAKE_AND_INSTALL}
+popd 
+rm -rf ${BUILD_DIRECTORY}/vala-0.56.18
+
+mkdir -p ${CROSSTOOLS_DIR}/bin
+cat > ${PREFIX}/bin/${CROSS_TARGET}-vapigen << EOF
+#!/bin/bash -e
+${PREFIX}/bin/vapigen --vapidir=${SYSROOT_DIR}/usr/share/vala/vapi \
+                                  --girdir=${SYSROOT_DIR}/usr/share/gir-1.0  "\$@"
+EOF
+chmod +x ${PREFIX}/bin/${CROSS_TARGET}-vapigen
+
+cat > ${PREFIX}/bin/${CROSS_TARGET}-valac << EOF
+#!/bin/bash -e
+${PREFIX}/bin/valac --vapidir=${SYSROOT_DIR}/usr/share/vala/vapi "\$@"
+EOF
+chmod +x ${PREFIX}/bin/${CROSS_TARGET}-valac

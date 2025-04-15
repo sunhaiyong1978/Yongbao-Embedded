@@ -3,11 +3,11 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=llvm-project
-export PACKAGE_VERSION=main_git-default
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/llvm-project/main_git-default/
-rm -rf ${BUILD_DIRECTORY}/llvm-project_git-main_git-default_git
-tar xvf ${DOWNLOADDIR}/llvm-project_git-main_git-default_git.tar.gz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/llvm-project_git-main_git-default_git
+export PACKAGE_VERSION=20.1.2
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/llvm-project/20.1.2/
+rm -rf ${BUILD_DIRECTORY}/llvm-project-20.1.2.src
+tar xvf ${DOWNLOADDIR}/llvm-project-20.1.2.src.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/llvm-project-20.1.2.src
     
     pushd llvm
     mkdir cross-build
@@ -39,4 +39,4 @@ chmod +x ${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config
 
 
 popd 
-rm -rf ${BUILD_DIRECTORY}/llvm-project_git-main_git-default_git
+rm -rf ${BUILD_DIRECTORY}/llvm-project-20.1.2.src
