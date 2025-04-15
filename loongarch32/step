@@ -32,7 +32,9 @@
 %step/cross-tools/NULL|
 %step/cross-tools/llvm-project|
 %step/cross-tools/qemu|
+%step/host-tools/glib|
 %step/cross-tools/gobject-introspection|
+%step/cross-tools/vala|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
@@ -170,10 +172,10 @@
 %step/sysroot/libmng|
 %step/sysroot/freetype|
 %step/sysroot/gobject-introspection|
-%step/sysroot/glib|f_sysroot_glib_bad
+%step/sysroot/glib|
 %step/sysroot/harfbuzz-pre|
 %step/sysroot/graphite|
-%step/sysroot/harfbuzz|f_sysroot_harfbuzz_bad
+%step/sysroot/harfbuzz|
 %step/sysroot/brotli|
 %step/sysroot/freetype|
 %step/sysroot/fontconfig|
@@ -187,9 +189,9 @@
 %step/sysroot/vala|f_sysroot_vala_bad
 %step/sysroot/libusb|
 %step/sysroot/usbutils|
-%step/sysroot/json-glib|f_sysroot_json-glib_bad
-%step/sysroot/libgusb|f_sysroot_libgusb_bad
-%step/sysroot/libgudev|f_sysroot_libgudev_bad
+%step/sysroot/json-glib|
+%step/sysroot/libgusb|
+%step/sysroot/libgudev|
 %step/sysroot/dhcp|
 %step/sysroot/busybox|
 %step/sysroot/libksba|
