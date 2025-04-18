@@ -10,10 +10,10 @@ tar xvf ${DOWNLOADDIR}/nss-3.110.tar.gz -C ${BUILD_DIRECTORY}
 pushd ${BUILD_DIRECTORY}/nss-3.110
 pushd nss
     sed -i "s@ uname -m@ cross-uname -m@g" coreconf/arch.mk
-    make -j${JOBS} CC="gcc" -C coreconf/nsinstall BUILD_OPT=1 USE_64=1 \
+    make -j${JOBS} CC="gcc" -C coreconf/nsinstall BUILD_OPT=1 \
          CPU_ARCH="${ARCH_NAME}" CROSS_COMPILE=1 NSS_ENABLE_WERROR=0 OS_TEST="${ARCH_NAME}"
     make -j${JOBS} NATIVE_CC="gcc" CC="${CROSS_TARGET}-gcc" CCC="${CROSS_TARGET}-g++" \
-         BUILD_OPT=1 USE_64=1 CPU_ARCH="${ARCH_NAME}" CROSS_COMPILE=1 \
+         BUILD_OPT=1 CPU_ARCH="${ARCH_NAME}" CROSS_COMPILE=1 \
          USE_SYSTEM_ZLIB=1 NSS_USE_SYSTEM_SQLITE=1 NSS_ENABLE_WERROR=0 \
          NSPR_INCLUDE_DIR=${SYSROOT_DIR}/usr/include/nspr OS_TEST="${ARCH_NAME}"
 

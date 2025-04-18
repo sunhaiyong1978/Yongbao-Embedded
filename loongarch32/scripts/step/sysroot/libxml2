@@ -18,7 +18,7 @@ pushd ${BUILD_DIRECTORY}/libxml2-2.14.1
                 autoreconf -ifv
         fi
 	if [ -f ${SYSROOT_DIR}/usr/bin/python3 ]; then
-	        ./configure ${COMMON_CONFIG} --with-history --with-icu --with-http --with-python=${CROSSTOOLS_DIR}/bin/python3 --with-python_install_dir=/usr/lib${LIB_SUFF}/python$(get_package_version Python3)/site-packages PYTHON=python3
+	        ./configure ${COMMON_CONFIG} --with-history --with-icu --with-http --with-python=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-python3 --with-python_install_dir=/usr/lib${LIB_SUFF}/python$(get_package_version Python3)/site-packages PYTHON=${CROSS_TARGET}-python3
 	else
 		./configure ${COMMON_CONFIG} --with-history --with-icu --with-http --with-python=no
 	fi

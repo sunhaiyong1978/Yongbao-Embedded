@@ -9,14 +9,14 @@ rm -rf ${BUILD_DIRECTORY}/nspr-4.36
 tar xvf ${DOWNLOADDIR}/nspr-4.36.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/nspr-4.36
     pushd nspr
-    patch -Np2 -i ${SYSDIR}/files/sysroot/nspr/4.36/patches/nspr-4.36-add-loongarch32.patch 
+    patch -Np2 -i ${SYSDIR}/files/sysroot/nspr/4.36/patches/0001-nspr-add-loongarch32-support.patch 
 	 
     for config_i in $(find -name "config.sub")
     do
             cp -a -f $(automake --print-libdir)/config.{sub,guess} $(dirname ${config_i})/
     done
     ./configure ${COMMON_CONFIG} \
-                --with-mozilla --with-pthreads --enable-64bit
+                --with-mozilla --with-pthreads
     make CC="gcc" CFLAGS="" -C config
     eval ${MAKE_AND_INSTALL}
     popd

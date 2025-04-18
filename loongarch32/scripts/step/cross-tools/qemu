@@ -11,8 +11,10 @@ pushd ${BUILD_DIRECTORY}/qemu_git-32bit-test_git
     sed -i "/HAVE_OPENAT2_H/d" meson.build
     mkdir -p build
     pushd build
+	LDFLAGS="" \
 	../configure --prefix=${CROSSTOOLS_DIR} \
 		     --target-list=${QEMU_TARGET_ARCH}-linux-user \
+ 		     --static \
 		     --disable-docs
         ninja
         cp qemu-${QEMU_TARGET_ARCH} ${CROSSTOOLS_DIR}/bin/qemu-${YONGBAO_TARGET_ARCH}.bin

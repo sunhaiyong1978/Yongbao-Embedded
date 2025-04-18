@@ -9,10 +9,10 @@ rm -rf ${BUILD_DIRECTORY}/Python-3.13.3
 tar xvf ${DOWNLOADDIR}/Python-3.13.3.tar.xz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/Python-3.13.3
 	CFLAGS="${CFLAGS} -fPIC"
-	./configure --prefix=${CROSSTOOLS_DIR} --with-platlibdir=lib64 \
+	./configure --prefix=${CROSSTOOLS_DIR} --with-platlibdir=lib${LIB_SUFF} \
 	            --disable-shared --with-system-expat --with-system-ffi \
 	            --with-ensurepip=yes --enable-optimizations \
-	            ac_cv_broken_sem_getvalue=yes LIBSQLITE3_LIBS="-L${CROSSTOOLS_DIR}/lib${LIB_SUFF} -Wl,-rpath=${CROSSTOOLS_DIR}/lib${LIB_SUFF} -lsqlite3"
+	            ac_cv_broken_sem_getvalue=yes
 	eval ${MAKE_AND_INSTALL}
 
 	save_package_version Python3 "${PACKAGE_VERSION%\.*}"

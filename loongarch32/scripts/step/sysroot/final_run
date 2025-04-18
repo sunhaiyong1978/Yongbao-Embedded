@@ -5,8 +5,8 @@ export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=final_run
 export PACKAGE_VERSION=
 export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/final_run//
-rm -f ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/perl5/5.3x/site_perl/auto/XML/Parser/.packlist
-rm -f ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/perl5/5.3x/site_perl/auto/URI/.packlist
+rm -f ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/perl5/5.4x/site_perl/auto/XML/Parser/.packlist
+rm -f ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/perl5/5.4x/site_perl/auto/URI/.packlist
 rm -f ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/rustlib/install.log
 
 touch ${TEMP_DIRECTORY}/strip-foo

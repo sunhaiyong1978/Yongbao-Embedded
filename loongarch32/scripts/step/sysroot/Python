@@ -41,7 +41,11 @@ if [ "x$(uname -m)" != "x${YONGBAO_TARGET_ARCH}" ]; then
 	QEMU_COMMAND="qemu-${ARCH_NAME}"
 fi
 echo "#!/bin/bash -e
+if [ -f ${SYSROOT_DIR}/usr/bin/python3 ]; then
+    ${QEMU_COMMAND} ${SYSROOT_DIR}/usr/bin/python3 \"\$@\"
+else
     _PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__linux_${CROSS_TARGET} ${CROSSTOOLS_DIR}/bin/python3 \"\$@\"
+fi
 " > ${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-python3
 chmod +x ${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-python3
 
@@ -55,9 +59,9 @@ if [ "x${TARGET_PYTHON_EXT}" != "x" ]; then
 	TARGET_PYTHON_EXT="${TARGET_PYTHON_EXT:1}"
 fi
 
-cp ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/python$(get_package_version Python3)/_sysconfigdata__linux_${TARGET_PYTHON_EXT}.py ${CROSSTOOLS_DIR}/lib64/python$(get_package_version Python3)/_sysconfigdata__linux_${CROSS_TARGET}.py
+cp ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/python$(get_package_version Python3)/_sysconfigdata__linux_${TARGET_PYTHON_EXT}.py ${CROSSTOOLS_DIR}/lib${LIB_SUFF}/python$(get_package_version Python3)/_sysconfigdata__linux_${CROSS_TARGET}.py
 
-sed -i "/'INCLUDEPY'/s@'/usr/include@'${SYSROOT_DIR}/usr/include@g" ${CROSSTOOLS_DIR}/lib64/python$(get_package_version Python3)/_sysconfigdata__linux_${CROSS_TARGET}.py
+sed -i "/'INCLUDEPY'/s@'/usr/include@'${SYSROOT_DIR}/usr/include@g" ${CROSSTOOLS_DIR}/lib${LIB_SUFF}/python$(get_package_version Python3)/_sysconfigdata__linux_${CROSS_TARGET}.py
 
 sed -i -e "s@${SYSROOT_DIR}@@g" \
        -e "s@${CROSS_TARGET}-@@g" \
