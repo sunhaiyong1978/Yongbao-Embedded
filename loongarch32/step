@@ -125,14 +125,14 @@
 %step/sysroot/libnl|
 %step/sysroot/sudo|
 %step/sysroot/nspr|
-%step/sysroot/nss|f_sysroot_nss_bad
+%step/sysroot/nss|
 %step/sysroot/icu4c|
 %step/sysroot/Python|
 %step/sysroot/meson|
 %step/sysroot/ninja|
-%step/sysroot/perl|f_sysroot_perl_bad
-%step/sysroot/XML-Parser|f_sysroot_XML-Parser_bad
-%step/sysroot/URI|f_sysroot_URI_bad
+%step/sysroot/perl|
+%step/sysroot/XML-Parser|
+%step/sysroot/URI|
 %step/sysroot/libgpg-error|
 %step/sysroot/libgcrypt|
 %step/sysroot/libxml2|
@@ -161,7 +161,7 @@
 %step/sysroot/cpio|
 %step/sysroot/libmnl|
 %step/sysroot/ethtool|
-%step/sysroot/boost|f_sysroot_boost_bad
+%step/sysroot/boost|
 %step/sysroot/libpng|
 %step/sysroot/libjpeg-turbo|
 %step/sysroot/tiff|
@@ -186,7 +186,7 @@
 %step/sysroot/libtasn1|
 %step/sysroot/p11-kit|
 %step/sysroot/gnutls|
-%step/sysroot/vala|f_sysroot_vala_bad
+%step/sysroot/vala|
 %step/sysroot/libusb|
 %step/sysroot/usbutils|
 %step/sysroot/json-glib|
@@ -207,6 +207,7 @@
 %step/sysroot/firewalld|
 %step/sysroot/llvm-project|
 %step/sysroot/llvm_runtimes|f_sysroot_llvm_runtimes_bad
+%step/sysroot/glibc_localedata|
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
 %step/sysroot/create_base_files|
