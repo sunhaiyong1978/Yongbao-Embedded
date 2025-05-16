@@ -27,8 +27,10 @@ git clone https://github.com/sunhaiyong1978/Yongbao-Embedded.git --depth 1
 
 ```sh
 sudo dnf install @c-development gawk gettext vim wget autoconf texinfo file flex bison \
-		rsync pkg-config cmak ninja tcl gperf \
-		zlib-devel python3-devel libunistring-devel libffi-devel gc-devel libicu-devel glib2-devel
+		rsync pkg-config cmake ninja tcl gperf patch openssl icu \
+		zlib-devel python3-devel libunistring-devel libffi-devel gc-devel libicu-devel glib2-devel gettext-devel \
+		glibc-static glib2-static zlib-static \
+		expat-devel perl-open perl-FindBin
 ```
 
 ### Ubuntu系统：
