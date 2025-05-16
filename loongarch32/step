@@ -206,7 +206,7 @@
 %step/sysroot/python-nftables|
 %step/sysroot/firewalld|
 %step/sysroot/llvm-project|
-%step/sysroot/llvm_runtimes|f_sysroot_llvm_runtimes_bad
+%step/sysroot/llvm_runtimes|
 %step/sysroot/glibc_localedata|
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
