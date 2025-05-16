@@ -3,18 +3,18 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=llvm_runtimes
-export PACKAGE_VERSION=20.1.3
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/llvm_runtimes/20.1.3/
-rm -rf ${BUILD_DIRECTORY}/llvm-project-20.1.3.src
-tar xvf ${DOWNLOADDIR}/llvm-project-20.1.3.src.tar.xz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/llvm-project-20.1.3.src
+export PACKAGE_VERSION=32bit
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/llvm_runtimes/32bit/
+rm -rf ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
+tar xvf ${DOWNLOADDIR}/llvm-project_git-32bit_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
     pushd compiler-rt
         mkdir cross-build
         pushd cross-build
             CC="clang" CXX="clang++" \
             cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
                   -DLLVM_CONFIG=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config \
-                  -DLLVM_LIBDIR_SUFFIX=64 \
+                  -DLLVM_LIBDIR_SUFFIX=${LIB_SUFF} \
                   -DCMAKE_AR="${CROSSTOOLS_DIR}/bin/llvm-ar" \
                   -DCMAKE_RANLIB="${CROSSTOOLS_DIR}/bin/llvm-ranlib" \
                   -DCMAKE_C_FLAGS="-DNDEBUG -target ${CROSS_TARGET}" \
@@ -31,42 +31,6 @@ pushd ${BUILD_DIRECTORY}/llvm-project-20.1.3.src
         popd
     popd
 
-    pushd openmp
-	mkdir cross-build
-	pushd cross-build
-	    CC="clang" CXX="clang++" \
-	    cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
-		  -DLLVM_CONFIG=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config \
-		  -DLLVM_LIBDIR_SUFFIX=64 \
-		  -DOPENMP_LIBDIR_SUFFIX=64 \
-		  -DCMAKE_AR="${CROSSTOOLS_DIR}/bin/llvm-ar" \
-		  -DCMAKE_ASM_COMPILER_AR="${CROSSTOOLS_DIR}/bin/llvm-ar" \
-		  -DCMAKE_CXX_COMPILER_AR="${CROSSTOOLS_DIR}/bin/llvm-ar" \
-		  -DCMAKE_C_COMPILER_AR="${CROSSTOOLS_DIR}/bin/llvm-ar" \
-		  -DCMAKE_RANLIB="${CROSSTOOLS_DIR}/bin/llvm-ranlib" \
-		  -DCMAKE_ASM_COMPILER_RANLIB="${CROSSTOOLS_DIR}/bin/llvm-ranlib" \
-		  -DCMAKE_CXX_COMPILER_RANLIB="${CROSSTOOLS_DIR}/bin/llvm-ranlib" \
-		  -DCMAKE_C_COMPILER_RANLIB="${CROSSTOOLS_DIR}/bin/llvm-ranlib" \
-		  -DCLANG_TOOL=${CROSSTOOLS_DIR}/bin/clang \
-		  -DLINK_TOOL=${CROSSTOOLS_DIR}/bin/llvm-link \
-		  -DOPT_TOOL=${CROSSTOOLS_DIR}/bin/opt \
-		  -DPACKAGER_TOOL=${CROSSTOOLS_DIR}/bin/clang-offload-packager \
-		  -DCMAKE_C_FLAGS="-DNDEBUG -target ${CROSS_TARGET}" \
-		  -DCMAKE_CXX_FLAGS="-DNDEBUG -target ${CROSS_TARGET}" \
-		  -DCMAKE_ASM_FLAGS="-target ${CROSS_TARGET}" \
-		  -DCMAKE_MAKE_PROGRAM:PATH=${HOST_TOOLS_DIR}/bin/ninja \
-		  -DPython3_EXECUTABLE=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-python3 \
-		  -DPERL_EXECUTABLE=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-perl \
-		  -DLIBOMPTARGET_NVPTX_ARCH=${CROSSTOOLS_DIR}/bin/nvptx-arch \
-		  -DLIBOMPTARGET_AMDGPU_ARCH=${CROSSTOOLS_DIR}/bin/amdgpu-arch \
-		  -DCMAKE_SYSROOT=${SYSROOT_DIR} \
-		  -DCMAKE_FIND_ROOT_PATH=${SYSROOT_DIR}/usr \
-		  -DLLVM_USE_SANITIZER:BOOL=ON \
-		  -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
-		  -DLLVM_HOST_TRIPLE=${CROSS_TARGET}
-	    eval ${NINJA_AND_INSTALL}
-	popd
-    popd
 
     pushd runtimes
         mkdir cross-build
@@ -74,13 +38,13 @@ pushd ${BUILD_DIRECTORY}/llvm-project-20.1.3.src
             CC="clang" CXX="clang++" \
             cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
                   -DLLVM_CONFIG=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config \
-                  -DLLVM_LIBDIR_SUFFIX=64 \
+                  -DLLVM_LIBDIR_SUFFIX=${LIB_SUFF} \
                   -DCMAKE_AR="${CROSSTOOLS_DIR}/bin/llvm-ar" \
                   -DCMAKE_RANLIB="${CROSSTOOLS_DIR}/bin/llvm-ranlib" \
                   -DCMAKE_C_FLAGS="-DNDEBUG -target ${CROSS_TARGET}" \
 		  -DCMAKE_CXX_FLAGS="-DNDEBUG -target ${CROSS_TARGET}" \
 		  -DCMAKE_ASM_FLAGS="-target ${CROSS_TARGET}" \
-		  -DLLVM_ENABLE_RUNTIMES="libunwind;libcxxabi;pstl;libcxx" \
+		  -DLLVM_ENABLE_RUNTIMES="pstl" \
                   -DCMAKE_MAKE_PROGRAM:PATH=${HOST_TOOLS_DIR}/bin/ninja \
 		  -DPython3_EXECUTABLE=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-python3 \
                   -DCMAKE_SYSROOT=${SYSROOT_DIR} \
@@ -91,4 +55,4 @@ pushd ${BUILD_DIRECTORY}/llvm-project-20.1.3.src
         popd
     popd
 popd 
-rm -rf ${BUILD_DIRECTORY}/llvm-project-20.1.3.src
+rm -rf ${BUILD_DIRECTORY}/llvm-project_git-32bit_git

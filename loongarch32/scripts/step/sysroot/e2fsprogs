@@ -10,7 +10,7 @@ tar xvf ${DOWNLOADDIR}/e2fsprogs-1.47.2.tar.gz -C ${BUILD_DIRECTORY}
 pushd ${BUILD_DIRECTORY}/e2fsprogs-1.47.2
 	mkdir -v build
 	pushd build
-		CFLAGS="${CFLAGS} -std=gnu11" \
+		CFLAGS="${CFLAGS} -std=gnu17" \
 		../configure ${COMMON_CONFIG} \
 		             --enable-elf-shlibs --disable-libblkid \
 		             --disable-libuuid --disable-uuidd --disable-fsck \
