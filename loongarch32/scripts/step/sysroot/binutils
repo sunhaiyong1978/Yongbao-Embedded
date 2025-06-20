@@ -9,7 +9,6 @@ rm -rf ${BUILD_DIRECTORY}/binutils_git-32bit-test_git
 tar xvf ${DOWNLOADDIR}/binutils_git-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/binutils_git-32bit-test_git
 	
-	rm -rf gdb* libdecnumber readline sim
 	mkdir -pv cross-build
 	pushd cross-build
 		../configure --prefix=/usr --libdir=/usr/lib${LIB_SUFF} --build=${CROSS_HOST} \

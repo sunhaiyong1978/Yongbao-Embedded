@@ -31,7 +31,7 @@ pushd ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
 	      -DLLVM_HOST_TRIPLE=${CROSS_TARGET} \
               -DLLVM_DEFAULT_TARGET_TRIPLE=${CROSS_TARGET}
         
-	for program_name in clang-ast-dump lldb-tblgen mlir-tblgen clang-tidy-confusable-chars-gen clang-pseudo-gen mlir-linalg-ods-yaml-gen mlir-pdll mlir-src-sharder                                                                      
+	for program_name in clang-ast-dump lldb-tblgen mlir-tblgen clang-tidy-confusable-chars-gen clang-pseudo-gen mlir-linalg-ods-yaml-gen mlir-pdll mlir-src-sharder mlir-irdl-to-cpp
 	do
 		sed -i "s@${PWD}/bin/${program_name}@qemu-${ARCH_NAME} ${PWD}/bin/${program_name}@g" build.ninja
 	done
