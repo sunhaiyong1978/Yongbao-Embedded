@@ -3,11 +3,11 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=cross-tools
 export STEP_PACKAGENAME=pkgconf
-export PACKAGE_VERSION=2.4.3
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/cross-tools/pkgconf/2.4.3/
-rm -rf ${BUILD_DIRECTORY}/pkgconf-2.4.3
-tar xvf ${DOWNLOADDIR}/pkgconf-2.4.3.tar.xz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/pkgconf-2.4.3
+export PACKAGE_VERSION=2.5.1
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/cross-tools/pkgconf/2.5.1/
+rm -rf ${BUILD_DIRECTORY}/pkgconf-2.5.1
+tar xvf ${DOWNLOADDIR}/pkgconf-2.5.1.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/pkgconf-2.5.1
         
         for config_i in $(find -name "config.sub")
         do
@@ -23,4 +23,4 @@ pushd ${BUILD_DIRECTORY}/pkgconf-2.4.3
         cp -f ${CROSSTOOLS_DIR}/bin/pkgconf ${CROSSTOOLS_DIR}/tmp/bin/${CROSS_TARGET}-pkg-config
 	ln -sf pkgconf ${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-pkg-config
 popd 
-rm -rf ${BUILD_DIRECTORY}/pkgconf-2.4.3
+rm -rf ${BUILD_DIRECTORY}/pkgconf-2.5.1

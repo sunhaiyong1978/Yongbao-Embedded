@@ -3,12 +3,12 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=systemd
-export PACKAGE_VERSION=257.5
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/systemd/257.5/
-rm -rf ${BUILD_DIRECTORY}/systemd-257.5
-tar xvf ${DOWNLOADDIR}/systemd-257.5.tar.gz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/systemd-257.5
-	patch -Np1 -i ${SYSDIR}/files/sysroot/systemd/257.5/patches/0001-systemd-257-add-loongarch32-support.patch 
+export PACKAGE_VERSION=257.7
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/systemd/257.7/
+rm -rf ${BUILD_DIRECTORY}/systemd-257.7
+tar xvf ${DOWNLOADDIR}/systemd-257.7.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/systemd-257.7
+	patch -Np1 -i ${SYSDIR}/files/sysroot/systemd/257.7/patches/0001-systemd-257-add-loongarch32-support.patch 
 	 
 	pushd src/basic
         python3 missing_syscalls.py missing_syscall_def.h $(ls syscalls-*.txt)
@@ -33,6 +33,6 @@ pushd ${BUILD_DIRECTORY}/systemd-257.5
 	rm -f ${SYSROOT_DIR}/usr/lib/systemd/system/systemd-networkd-wait-online.service
 
 popd 
-rm -rf ${BUILD_DIRECTORY}/systemd-257.5
+rm -rf ${BUILD_DIRECTORY}/systemd-257.7
 
 set_strip_step "/usr/lib/systemd" "0"
