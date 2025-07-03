@@ -208,6 +208,8 @@
 %step/sysroot/llvm-project|
 %step/sysroot/llvm_runtimes|
 %step/sysroot/glibc_localedata|
+%step/sysroot/pexpect|
+%step/sysroot/ptyprocess|
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
 %step/sysroot/create_base_files|
