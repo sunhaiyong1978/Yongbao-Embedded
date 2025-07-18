@@ -42,7 +42,6 @@
 %step/sysroot/mpfr|
 %step/sysroot/mpc|
 %step/sysroot/zlib|
-%step/sysroot/binutils|
 %step/sysroot/gcc|
 %step/sysroot/bzip2|
 %step/sysroot/xz|
@@ -205,6 +204,7 @@
 %step/sysroot/nftables|
 %step/sysroot/python-nftables|
 %step/sysroot/firewalld|
+%step/sysroot/binutils|
 %step/sysroot/llvm-project|
 %step/sysroot/llvm_runtimes|
 %step/sysroot/glibc_localedata|
