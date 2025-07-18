@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# echo $(realpath "$0")
+# if [ -f $(dirname $(realpath "$0"))/ZZ.version ]; then
+# 	if [ "x$(cat $(dirname $(realpath "$0"))/ZZ.version)" == "x1.0" ]; then
+# 		if [ -f $(dirname $(realpath "$0"))/build.sh.v1.0 ]; then
+# 			echo "切换到 $(dirname $(realpath "$0"))/build.sh.v1.0 执行任务。"
+# 			$(dirname $(realpath "$0"))/build.sh.v1.0 $@
+# 			exit $?
+# 		else
+# 			echo "错误：没有对应的执行命令 build.sh.v1.0 ，无法继续执行。"
+# 			exit 254
+# 		fi
+# 	fi
+# fi
+
 declare FULL_COMMAND="$0 $@"
 BASE_DIR="${PWD}"
 
@@ -7,7 +21,7 @@ declare RELEASE_BUILD_MODE=0
 declare NEW_BASE_DIR="${PWD}"
 declare NEW_TARGET_SYSDIR="${BASE_DIR}/workbase"
 
-
+declare ARCH_NAME="loongarch64"
 
 declare FORCE_BUILD=0
 declare FORCE_ALL_BUILD=0
@@ -35,8 +49,12 @@ declare BUILD_PACKAGE_CHECK=0
 declare USE_PROXY_DOWNLOAD=""
 declare WORLD_PARM=""
 declare USE_PREV_INDEX_FILE=0
+declare SET_CROSSTOOLS_DIR=""
+declare CROSSTOOLS_DIR_EXT=""
+declare BUILD_ERROR_LIMITE=1
+declare BUILD_ERROR_COUNT=1
 
-while getopts 'fao:rgsde:xi:S:O:tpwch' OPT; do
+while getopts 'fao:rgsde:xi:S:O:C:K:tpwch' OPT; do
     case $OPT in
         f)
             FORCE_BUILD=1
@@ -75,11 +93,48 @@ while getopts 'fao:rgsde:xi:S:O:tpwch' OPT; do
 	O)
 	    SET_PARENT_DIR=$OPTARG
 	    ;;
+	C)
+	    SET_CROSSTOOLS_DIR=$OPTARG
+	    ;;
 	t)
 	    BUILD_PACKAGE_CHECK=1
 	    ;;
 	p)
 	    USE_PROXY_DOWNLOAD="-p"
+	    ;;
+# 	D)
+#	    case "x${OPTARG}" in
+#		x0)
+#		    BUILD_ERROR_MODE="0"
+#		    ;;
+#		x1)
+#		    BUILD_ERROR_MODE="1"
+#		    ;;
+#		*)
+#		    BUILD_ERROR_MODE=""
+#		    ;;
+#	    esac
+#	    ;;
+	K)
+	    if [[ ${OPTARG} =~ ^[0-9]+$ ]]; then
+		    case "x${OPTARG}" in
+			x0)
+				BUILD_ERROR_LIMITE=0
+				BUILD_ERROR_COUNT=1
+				;;
+			x1)
+				BUILD_ERROR_LIMITE=1
+				BUILD_ERROR_COUNT=1
+				;;
+			*)
+				BUILD_ERROR_LIMITE=2
+				BUILD_ERROR_COUNT=${OPTARG}
+				;;
+		    esac
+	    else
+		echo -e "\e[031m错误：-K 参数后必须指定一个数字！\e[0m"
+		exit 127
+	    fi
 	    ;;
 	w)
 	    NEW_TARGET_SYSDIR="${BASE_DIR}/workbase"
@@ -119,10 +174,15 @@ while getopts 'fao:rgsde:xi:S:O:tpwch' OPT; do
             echo "    -i: 设置指定的步骤文件（.step）或步骤索引文件(.index)。"
             echo "    -S <目录名>: 构建过程中默认安装到sysroot目录中的文件将安装到指定目录中。"
             echo "    -O <目录名>: 构建过程中设置用于OverlayFS的目录，当需要指定多个目录时使用“,”符号进行分隔，特殊名称ORIG代表编译的软件包所在组设置的目录，目录优先级从后往前。"
+            echo "    -C <目录名>: 构建过程中设置Cross-Tools的目录，该目录将替代cross-tools目录。"
             echo "    -t: 对构建过程中编译的软件判断当构建目标架构与当前架构相同时进行编译测试过程（需要软件包脚本目录中存在 check 后缀名的测试定义文件）。"
 	    echo "    -p: 在构建过程中对需要下载软件包时使用proxy.set文件中的设置。"
 	    echo "    -w: 强制使用主线环境中的构建，不指定该参数将使用 current_branch 中指定的分支环境中进行构建，若不存在 current_branch 文件则默认使用主线环境构建。"
-	    echo "    -c: 单独使用该参数等同于使用 -i ${NEW_TARGET_SYSDIR}/step.index ，注意该参数不与 -o -r -g -i 参数共用。"
+	    echo "    -c: 构建过程按照上一次分析产生的步骤进行，单独使用该参数等同于使用 -i ${NEW_TARGET_SYSDIR}/step.index ，注意该参数不与 -o -r -g -i 参数共用。"
+	    echo "    -K <错误数>: 指定在构建过程中出现错误的步骤数上限，当达到该制定数时构建过程终止并现实构建错误步骤，若未达到制定错误步骤上限将继续构建后续步骤，在构建结束后打印存在错误的步骤列表。不指定该参数将按照默认的上限进行处理，默认上限为1，即遇到错误步骤即停止。"
+	    echo "        错误数: 0，不设上限，表示无论多少错误数都不会停止构建过程，直到构建完成为止，构建结束后打印错误步骤。"
+	    echo "        错误数: 1，出现错误步骤即立刻停止构建过程，显示相关的信息。"
+	    echo "        错误数: 2以上，指定错误步骤的上限，达到该限制时将立刻停止构建过程，并显示所有错误步骤。"
             exit 127
     esac
 done
@@ -154,6 +214,7 @@ if [ "x${WORLD_PARM}" == "x" ]; then
 		RELEASE_BUILD_MODE=0
 	fi
 fi
+SOURCE_STEP_FILE="${NEW_BASE_DIR}/step"
 
 
 export BUILD_PACKAGE_CHECK=${BUILD_PACKAGE_CHECK}
@@ -247,23 +308,72 @@ function get_all_set_env_expr
 			*)
 				;;
 		esac
+		FINAL_ENV_VALUE=""
 		GET_ENV_VALUE=""
 		GET_ENV_VALUE="$(cat ${NEW_TARGET_SYSDIR}/set_env.conf | grep "^export YONGBAO_SET_ENV_${i}=" | awk -F'=' '{ print $2 }')"
 		if [ "x${GET_ENV_VALUE}" != "x" ] || [ "x${DEFAULT_ENV[${TEMP_COUNT}]}" != "x" ]; then
 			if [ "x${GET_ENV_VALUE}" != "x" ]; then
-		                USE_ENV[${USE_ENV_COUNT}]="${i}=${GET_ENV_VALUE}"
+# 		                USE_ENV[${USE_ENV_COUNT}]="${i}=${GET_ENV_VALUE}"
+				FINAL_ENV_VALUE="${GET_ENV_VALUE}"
 			fi
 			if [ "x${DEFAULT_ENV[${TEMP_COUNT}]}" != "x" ]; then
 				if [ "x${DEFAULT_ENV[${TEMP_COUNT}]:0:1}" == "x?" ]; then
-					if [ "x${USE_ENV[${USE_ENV_COUNT}]}" == "x" ]; then
-						USE_ENV[${USE_ENV_COUNT}]="${i}=${DEFAULT_ENV[${TEMP_COUNT}]:1}"
-#					else
-#						USE_ENV[${USE_ENV_COUNT}]="${i}=${GET_ENV_VALUE}"
+# 					if [ "x${USE_ENV[${USE_ENV_COUNT}]}" == "x" ]; then
+# 						USE_ENV[${USE_ENV_COUNT}]="${i}=${DEFAULT_ENV[${TEMP_COUNT}]:1}"
+# 					fi
+					if [ "x${GET_ENV_VALUE}" == "x" ]; then
+						FINAL_ENV_VALUE="${DEFAULT_ENV[${TEMP_COUNT}]:1}"
 					fi
 				else
-					USE_ENV[${USE_ENV_COUNT}]="${i}=${DEFAULT_ENV[${TEMP_COUNT}]}"
+# 					USE_ENV[${USE_ENV_COUNT}]="${i}=${DEFAULT_ENV[${TEMP_COUNT}]}"
+					FINAL_ENV_VALUE="${DEFAULT_ENV[${TEMP_COUNT}]}"
 				fi
+			else
+				FINAL_ENV_VALUE=""
 			fi
+			case "x${FINAL_ENV_VALUE}" in
+				"xHOST_ARCH")
+					FINAL_ENV_VALUE="$(uname -m)"
+					;;
+				"xTARGET_ARCH")
+					FINAL_ENV_VALUE="${ARCH_NAME}"
+					;;
+				"x")
+					case "x${i}" in
+						xhost)
+							FINAL_ENV_VALUE="$(uname -m)"
+							;;
+						xtarget)
+							FINAL_ENV_VALUE="${ARCH_NAME}"
+							;;
+						xvendor)
+							FINAL_ENV_VALUE="unknown"
+							;;
+						*)
+							;;
+					esac
+					;;
+				*)
+					;;
+			esac
+			USE_ENV[${USE_ENV_COUNT}]="${i}=${FINAL_ENV_VALUE}"
+        		((USE_ENV_COUNT++))
+		else
+			case "x${i}" in
+				xhost)
+ 					FINAL_ENV_VALUE="$(uname -m)"
+					;;
+				xtarget)
+					FINAL_ENV_VALUE="${ARCH_NAME}"
+					;;
+				xvendor)
+					FINAL_ENV_VALUE="unknown"
+					;;
+				*)
+					FINAL_ENV_VALUE=""
+					;;
+			esac
+			USE_ENV[${USE_ENV_COUNT}]="${i}=${FINAL_ENV_VALUE}"
         		((USE_ENV_COUNT++))
 		fi
         	((TEMP_COUNT++))
@@ -279,10 +389,39 @@ function test_filter_str
 	declare RET_STR="0"
 	declare GET_ENV_VALUE=""
 	TEST_KEY=$(echo ${TEST_STR} | awk -F'=' '{ print $1 }')
+	TEST_VALUE=$(echo "${TEST_STR}" | awk -F'=' '{ print $2 }')
+	if [ "x${TEST_VALUE:0:1}" == "x?" ]; then
+		TEST_VALUE_OPT=1
+	else
+		TEST_VALUE_OPT=0
+	fi
 	TEST_VALUE=$(echo "${TEST_STR}" | awk -F'=' '{ print $2 }' | sed "s@\&@,@g" | sed "s@^\?@@g")
+	case "x${TEST_VALUE}" in
+		"xHOST_ARCH")
+			TEST_VALUE=$(uname -m)
+			;;
+		"xTARGET_ARCH")
+			TEST_VALUE=${ARCH_NAME}
+			;;
+		"*")
+			;;
+	esac
 	FILTER_STR="$(cat ${FILTER_FILE} | grep "^${TEST_KEY}=" | awk -F'=' '{ print $2 }')"
 
 	GET_ENV_VALUE="$(cat ${NEW_TARGET_SYSDIR}/set_env.conf | grep "^export YONGBAO_SET_ENV_${TEST_KEY}=" | awk -F'=' '{ print $2 }')"
+
+	if [ "x${TEST_VALUE}" == "x" ] && [ "x${GET_ENV_VALUE}" == "x" ]; then
+		case "x${TEST_KEY}" in
+			"xhost")
+				TEST_VALUE=$(uname -m)
+				;;
+			"xtarget")
+				TEST_VALUE=${ARCH_NAME}
+				;;
+			*)
+				;;
+		esac
+	fi
 
 #	if [ "x${TEST_VALUE}" == "x" ] && [ "x${GET_ENV_VALUE}" == "x" ]; then
 #		echo "0"
@@ -294,27 +433,54 @@ function test_filter_str
 #			echo "GET_ENV_VALUE=${GET_ENV_VALUE}  TEST_VALUE=${TEST_VALUE} i=${i:1}"
 			case "x${i:0:1}" in
 				"x!")
-					if [ "x${i:1}" == "x${TEST_VALUE}" ]; then
-						echo "1"
-						return;
-					fi
 					if [ "x${i:1}" == "x${GET_ENV_VALUE}" ]; then
 						echo "1"
 						return;
 					fi
+					if [ "x${i:1}" == "x${TEST_VALUE}" ]; then
+						echo "x${i:1}  test x${TEST_VALUE}" >> /tmp/a.log
+						echo "1"
+						return;
+					fi
+					RET_STR="0"
 					;;
 				*)
-					if [ "x${i}" == "x${TEST_VALUE}" ]; then
-						RET_STR="0"
-						break;
+					if [ "x${TEST_VALUE_OPT}" == "x1" ]; then
+						if [ "x${GET_ENV_VALUE}" != "x" ]; then
+							if [ "x${i}" == "x${GET_ENV_VALUE}" ]; then
+								RET_STR="0"
+								break;
+							else
+								RET_STR="1"
+							fi
+						else
+							if [ "x${i}" == "x${TEST_VALUE}" ]; then
+								RET_STR="0"
+								break;
+							else
+								RET_STR="1"
+							fi
+						fi
 					else
-						if [ "x${i}" == "x${GET_ENV_VALUE}" ]; then
+						if [ "x${i}" == "x${TEST_VALUE}" ]; then
 							RET_STR="0"
 							break;
 						else
 							RET_STR="1"
 						fi
 					fi
+
+# 					if [ "x${i}" == "x${TEST_VALUE}" ]; then
+# 						RET_STR="0"
+# 						break;
+# 					else
+# 						if [ "x${i}" == "x${GET_ENV_VALUE}" ]; then
+# 							RET_STR="0"
+# 							break;
+# 						else
+# 							RET_STR="1"
+# 						fi
+# 					fi
 					;;
 			esac
 		done
@@ -468,21 +634,54 @@ function get_all_can_set_env_str
 
         for i in ${SET_ENV[*]}
         do
+		FINAL_ENV_VALUE=""
 		GET_ENV_VALUE=""
 		GET_ENV_VALUE="$(cat ${NEW_TARGET_SYSDIR}/set_env.conf | grep "^export YONGBAO_SET_ENV_${i}=" | awk -F'=' '{ print $2 }')"
 		if [ "x${DEFAULT_ENV[${TEMP_COUNT}]}" != "x" ]; then
 			if [ "x${DEFAULT_ENV[${TEMP_COUNT}]:0:1}" == "x?" ]; then
 				if [ "x${GET_ENV_VALUE}" != "x" ]; then
-			                USE_ENV[${USE_ENV_COUNT}]=${GET_ENV_VALUE}
-					echo "export YONGBAO_SET_ENV_${i}=${GET_ENV_VALUE}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
+# 			                USE_ENV[${USE_ENV_COUNT}]=${GET_ENV_VALUE}
+# 					echo "export YONGBAO_SET_ENV_${i}=${GET_ENV_VALUE}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
+					FINAL_ENV_VALUE="${GET_ENV_VALUE}"
 				else
-					USE_ENV[${USE_ENV_COUNT}]=${DEFAULT_ENV[${TEMP_COUNT}]:1}
-					echo "export YONGBAO_SET_ENV_${i}=${DEFAULT_ENV[${TEMP_COUNT}]:1}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
+# 					USE_ENV[${USE_ENV_COUNT}]=${DEFAULT_ENV[${TEMP_COUNT}]:1}
+# 					echo "export YONGBAO_SET_ENV_${i}=${DEFAULT_ENV[${TEMP_COUNT}]:1}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
+					FINAL_ENV_VALUE="${DEFAULT_ENV[${TEMP_COUNT}]:1}"
 				fi
 			else
-				USE_ENV[${USE_ENV_COUNT}]=${DEFAULT_ENV[${TEMP_COUNT}]}
-				echo "export YONGBAO_SET_ENV_${i}=${DEFAULT_ENV[${TEMP_COUNT}]}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
+# 				USE_ENV[${USE_ENV_COUNT}]=${DEFAULT_ENV[${TEMP_COUNT}]}
+# 				echo "export YONGBAO_SET_ENV_${i}=${DEFAULT_ENV[${TEMP_COUNT}]}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
+				FINAL_ENV_VALUE="${DEFAULT_ENV[${TEMP_COUNT}]}"
 			fi
+		fi
+		case "x${FINAL_ENV_VALUE}" in
+			xHOST_ARCH)
+				FINAL_ENV_VALUE="$(uname -m)"
+				;;
+			xTARGET_ARCH)
+				FINAL_ENV_VALUE="${ARCH_NAME}"
+				;;
+			x)
+				case "x${i}" in
+					xhost)
+						FINAL_ENV_VALUE="$(uname -m)"
+						;;
+					xtarget)
+						FINAL_ENV_VALUE="${ARCH_NAME}"
+						;;
+					xvendor)
+						FINAL_ENV_VALUE="unknown"
+						;;
+					*)
+						;;
+				esac
+				;;
+			*)
+				;;
+		esac
+		if [ "x${FINAL_ENV_VALUE}" != "x" ]; then
+			USE_ENV[${USE_ENV_COUNT}]="${FINAL_ENV_VALUE}"
+			echo "export YONGBAO_SET_ENV_${i}=${FINAL_ENV_VALUE}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
 		fi
         	((USE_ENV_COUNT++))
         	((TEMP_COUNT++))
@@ -531,6 +730,15 @@ function get_can_set_status_file
 	echo "1"
 }
 
+function format_package_env_to_string
+{
+	# echo "export YONGBAO_SET_ENV_${i}=${GET_ENV_VALUE}" >> ${NEW_TARGET_SYSDIR}/package_env.conf
+	if [ -f ${NEW_TARGET_SYSDIR}/package_env.conf ]; then
+		echo "$(grep "^export YONGBAO_SET_ENV_" ${NEW_TARGET_SYSDIR}/package_env.conf | sed "s/export YONGBAO_SET_ENV_//g" | sed -z "s@\n@,@g" | sed "s@,\$@@g")"
+	else
+		echo ""
+	fi
+}
 
 function create_date_suff
 {
@@ -556,6 +764,10 @@ function get_overlay_dirname
 		OVERLAY_DIR=$(cat ${1} | grep "overlay_dir=" | head -n1 | gawk -F'=' '{ print $2 }')
 	else
 		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^-]@@g")
+	fi
+
+	if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
+		OVERLAY_DIR=$(echo "${SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^-]@@g")
 	fi
 	echo "${OVERLAY_DIR}"
 }
@@ -613,7 +825,11 @@ function overlay_mount
 
 #	LOWERDIR_LIST="${NEW_TARGET_SYSDIR}/overlaydir/.lowerdir"
 	LOWERDIR_LIST=""
-	OVERLAY_DIR=$(get_overlay_dirname ${2})
+	if [ -f ${2} ]; then
+		OVERLAY_DIR=$(get_overlay_dirname ${2})
+	else
+		OVERLAY_DIR=""
+	fi
 
 
 #	if [ -f ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.released ]; then
@@ -641,7 +857,11 @@ function overlay_mount
 
 # echo "Parent Dir: ${SET_PARENT_DIR}"
 
-	OVERLAY_PARENT_LIST=$(cat ${2} | grep "parent_dirs=" | head -n1 | gawk -F'=' '{ print $2 }')
+	if [ -f ${2} ]; then
+		OVERLAY_PARENT_LIST=$(cat ${2} | grep "parent_dirs=" | head -n1 | gawk -F'=' '{ print $2 }')
+	else
+		OVERLAY_PARENT_LIST=""
+	fi
 	if [ "x${OVERLAY_PARENT_LIST}" != "x" ]; then
 		for i in ${OVERLAY_PARENT_LIST}
 		do
@@ -873,6 +1093,17 @@ function overlay_umount
 	sync
 }
 
+function overlay_umount_cross_tools
+{
+	sudo umount -R ${NEW_TARGET_SYSDIR}/cross-tools
+	if [ "x$?" != "x0" ]; then
+		echo "卸载cross-tools错误！"
+		echo "sudo umount -R ${NEW_TARGET_SYSDIR}/cross-tools"
+		exit -2
+	fi
+	sync
+}
+
 function get_string_stepname
 {
         echo $(echo "${1}" | grep -o "[^:#%/]\{0,\}/" || echo "NULL") | head -n1 | sed "s@/@@g"
@@ -950,7 +1181,7 @@ function get_require
 	declare STEP_REQUIRES_NAME="$(cat ${NEW_BASE_DIR}/env/${STEPNAME}/overlay.set | grep "requires=" | tail -n1 | awk -F'=' '{ print $2 }')"
 
 	if [ "x${STEP_OVERLAY_NAME}" != "x" ]; then
-		for step_dir in $(grep -r "overlay_dir=${STEP_OVERLAY_NAME}" ${NEW_BASE_DIR}/env/* | awk -F'/' '{ print $2 }')
+		for step_dir in $(grep -r "overlay_dir=${STEP_OVERLAY_NAME}" ${NEW_BASE_DIR}/env/* | sed "s@${NEW_BASE_DIR}/env@@g" | awk -F'/' '{ print $2 }')
 		do
 			if [[ "${STEP_LISTS}" != *" ${step_dir} "* ]]; then
 				STEP_LISTS="${STEP_LISTS} ${step_dir} "
@@ -961,7 +1192,7 @@ function get_require
 	if [ "x${STEP_PARENT_NAME}" != "x" ]; then
 		for parent_name in $(echo ${STEP_PARENT_NAME} | tr ',' '\n')
 		do
-			for step_dir in $(grep -r "overlay_dir=${parent_name}" ${NEW_BASE_DIR}/env/* | awk -F'/' '{ print $2 }')
+			for step_dir in $(grep -r "overlay_dir=${parent_name}" ${NEW_BASE_DIR}/env/* | sed "s@${NEW_BASE_DIR}/env@@g" | awk -F'/' '{ print $2 }')
 			do
 				if [[ "${STEP_LISTS}" != *" ${step_dir} "* ]]; then
 					STEP_LISTS="${STEP_LISTS} ${step_dir} "
@@ -1375,6 +1606,7 @@ function create_os_run
 				if [ -f ${SCRIPTS_DIR}/step/${SCRIPT_FILE}.os_start_run ]; then
 					echo ""
 					echo "创建 ${NEW_TARGET_SYSDIR}/scripts/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run "
+#					echo " tools/show_package_script.sh ${WORLD_PARM} -e -n ${SCRIPT_FILE} "os_start_run" > ${NEW_TARGET_SYSDIR}/scripts/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run"
 					tools/show_package_script.sh ${WORLD_PARM} -e -n ${SCRIPT_FILE} "os_start_run" > ${NEW_TARGET_SYSDIR}/scripts/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
 				fi
 			fi
@@ -1459,7 +1691,6 @@ function step_to_index
 #		echo "因指定了编译步骤，需测试编译的相关组，相关组如下："
 #		echo "${STEPNAME}"
 		get_requires "${STEPNAME}" ""
-		echo "$(get_requires "${STEPNAME}" "")"
 		REQUIRES_STEPS="${STEPNAME} $(get_requires "${STEPNAME}" "")"
 		GREP_STR=$(echo ${REQUIRES_STEPS} | sed "s@\([^ ]*\)@ -e \"step/&/\"@g")
 #		echo "筛选字串： ${GREP_STR}"
@@ -1592,7 +1823,7 @@ function cp_file_and_sources
 
 function start_download_source
 {
-	echo -n -e "\r下载 ${1} 所需的源码包及资源文件..."
+	echo -n -e "\033[2K\r下载 ${1} 所需的源码包及资源文件..."
 	for down_retry in 1 2 3
 	do
 		tools/get_all_package_url.sh ${WORLD_PARM} -a ${USE_PROXY_DOWNLOAD} -s ${1} > /dev/null
@@ -1609,7 +1840,7 @@ function start_download_source
 
 function start_download_source_for_version_index
 {
-	echo -n -e "\r下载 ${1} 所需的源码包及资源文件..."
+	echo -n -e "\033[2K\r下载 ${1} 所需的源码包及资源文件..."
 	for down_retry in 1 2 3
 	do
 		if [ "x${2}" != "x" ]; then
@@ -1648,6 +1879,10 @@ echo "" > ${NEW_TARGET_SYSDIR}/package_env.conf
 
 
 create_date_suff
+
+if [ -f ${NEW_TARGET_SYSDIR}/logs/build_error.log ]; then
+	mv ${NEW_TARGET_SYSDIR}/logs/build_error.log{,.${DATA_SUFF}}
+fi
 
 # 保存完整的执行命令，以备后续查看。
 echo "${FULL_COMMAND}" >> ${NEW_TARGET_SYSDIR}/command_save.txt
@@ -1708,6 +1943,24 @@ mkdir -p ${NEW_TARGET_SYSDIR}/build
 
 mkdir -p ${NEW_BASE_DIR}/downloads/files/step
 
+mkdir -p ${NEW_TARGET_SYSDIR}/cross-tools
+
+while mount | grep "on ${NEW_TARGET_SYSDIR}/cross-tools type " > /dev/null
+do
+	echo "卸载已挂载的目录 ${NEW_TARGET_SYSDIR}/cross-tools ..."
+	overlay_umount_cross_tools
+done
+
+
+SET_CROSSTOOLS_DIR=$(echo ${SET_CROSSTOOLS_DIR} | sed "s@[^[:alnum:]\|^\.\|^_\|^-]@@g")
+if [ "x${SET_CROSSTOOLS_DIR}" != "x" ] && [ "x${SET_CROSSTOOLS_DIR}" != "xcross-tools" ]; then
+	echo "设置了临时 cross-tools 目录，将使用 ${SET_CROSSTOOLS_DIR} 目录作为 cross-tools目录"
+	mkdir -p ${NEW_TARGET_SYSDIR}/${SET_CROSSTOOLS_DIR}
+	sudo mount --bind ${NEW_TARGET_SYSDIR}/${SET_CROSSTOOLS_DIR} ${NEW_TARGET_SYSDIR}/cross-tools
+	CROSSTOOLS_DIR_EXT="_${SET_CROSSTOOLS_DIR}"
+else
+	CROSSTOOLS_DIR_EXT=""
+fi
 
 # if [ -f ${NEW_TARGET_SYSDIR}/status/${INDEX_MD5SUM_FILE} ]; then
 # 	if [ "x$(cat ${NEW_TARGET_SYSDIR}/status/${INDEX_MD5SUM_FILE})" != "x0" ]; then
@@ -1877,7 +2130,7 @@ do
 	PACKAGE_GIT_COMMIT=""
 
 	if [ -f ${SCRIPTS_DIR}/step/${STEP_STAGE}/${PACKAGE_NAME}.parmfilter ]; then
-#		test_filter_form_opt "${PACKAGE_ALL_OPT}" "${SCRIPTS_DIR}/step/${STEP_STAGE}/${PACKAGE_NAME}.parmfilter"
+# 		test_filter_form_opt "${PACKAGE_ALL_OPT}" "${SCRIPTS_DIR}/step/${STEP_STAGE}/${PACKAGE_NAME}.parmfilter"
 		if [ "x$(test_filter_form_opt "${PACKAGE_ALL_OPT}" "${SCRIPTS_DIR}/step/${STEP_STAGE}/${PACKAGE_NAME}.parmfilter" )" != "x0" ]; then
 			if [ "x$(get_all_set_env_expr "${PACKAGE_ALL_OPT}")" == "x" ]; then
 				echo -e "\r\e[33m发现 ${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包当前设置不符合制作条件。\e[0m"
@@ -1934,15 +2187,15 @@ do
 #	echo "SET_OVERLAY_DIR: ${SET_OVERLAY_DIR}"
 #	echo "AUTO_SET_OVERLAY_DIR: ${AUTO_SET_OVERLAY_DIR}"
 
-	STATUS_FILE="${PACKAGE_NAME}${PACKAGE_SET_ENV}_${STEP_STAGE}_${PACKAGE_INDEX}"
+	STATUS_FILE="${PACKAGE_NAME}${PACKAGE_SET_ENV}_${STEP_STAGE}${CROSSTOOLS_DIR_EXT}_${PACKAGE_INDEX}"
 	if [ "x${SET_OVERLAY_DIR}" != "x" ] && [ "x{AUTO_SET_OVERLAY_DIR}" == "x0" ]; then
-		STATUS_FILE="${PACKAGE_NAME}${PACKAGE_SET_ENV}_${STEP_STAGE}_${SET_OVERLAY_DIR}_${PACKAGE_INDEX}"
+		STATUS_FILE="${PACKAGE_NAME}${PACKAGE_SET_ENV}_${STEP_STAGE}_${SET_OVERLAY_DIR}${CROSSTOOLS_DIR_EXT}_${PACKAGE_INDEX}"
 	else
 #		if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
 #			STATUS_FILE="${PACKAGE_NAME}${PACKAGE_SET_ENV}_${STEP_STAGE}_${SET_OVERLAY_DIR}_${PACKAGE_INDEX}"
 #		fi
 		if [ "x${SET_OVERLAY_DIR}" != "x" ] && [ "x${AUTO_SET_OVERLAY_DIR}" != "x1" ]; then
-			STATUS_FILE="${PACKAGE_NAME}${PACKAGE_SET_ENV}_${STEP_STAGE}_${SET_OVERLAY_DIR}_${PACKAGE_INDEX}"
+			STATUS_FILE="${PACKAGE_NAME}${PACKAGE_SET_ENV}_${STEP_STAGE}_${SET_OVERLAY_DIR}${CROSSTOOLS_DIR_EXT}_${PACKAGE_INDEX}"
 		fi
 	fi
 
@@ -2079,11 +2332,46 @@ do
 	os_run_clean "${STEP_STAGE}" "${PACKAGE_NAME}"
 	tools/run_package_script.sh ${WORLD_PARM} ${SCRIPT_FILE} >${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log 2>&1
 	if [ "x$?" != "x0" ]; then
-		echo "错误！"
-		tools/show_package_script.sh ${WORLD_PARM} ${SCRIPT_FILE}
-		echo "${SCRIPT_FILE}制作错误!"
-		echo "错误日志请查看 ${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log 文件。"
-		exit 1
+		echo  -e "\e[31m错误！\e[0m"
+
+		case "x${BUILD_ERROR_LIMITE}" in
+			x0)
+				echo "* ${STEP_STAGE}/${PACKAGE_NAME} $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}")" >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "    错误日志请查看 ${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log 文件。"  >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "    进入构建环境进行调试使用命令： tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${SET_OVERLAY_DIR}")" || echo " -S ${OPT_SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} "  >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				continue
+				;;
+			x1)
+				tools/show_package_script.sh ${WORLD_PARM} ${SCRIPT_FILE}
+				echo -e "${SCRIPT_FILE}  $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}") \e[31m制作错误!\e[0m"
+				echo -e "错误日志请查看 \e[31m ${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log \e[0m 文件。"
+				REBUILD_ENV=$(format_package_env_to_string)
+				echo -e "进入构建环境进行调试使用命令： \e[32m tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${SET_OVERLAY_DIR}")" || echo " -S ${OPT_SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} \e[0m"
+				exit 1
+				;;
+			*)
+				((BUILD_ERROR_COUNT--))
+				echo "* ${STEP_STAGE}/${PACKAGE_NAME} $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}")" >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "    错误日志请查看 ${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log 文件。"  >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "    进入构建环境进行调试使用命令： tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${SET_OVERLAY_DIR}")" || echo " -S ${OPT_SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} " >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				if [ "x${BUILD_ERROR_COUNT}" == "x0" ]; then
+					echo -e "\e[31m错误数量达到限制，构建过程停止。\e[0m"
+					echo -e "\e[31m本次编译存在以下错误步骤，请检查。\e[0m"
+
+					if [ -f ${NEW_TARGET_SYSDIR}/logs/build_error.log ]; then
+						if (( $(wc -l workbase/logs/build_error.log |awk -F' ' '{ print $1 }') >= 15 )); then
+							head -n15 ${NEW_TARGET_SYSDIR}/logs/build_error.log
+							echo -e "\e[031m......\e[0m"
+							echo -e "\e[031m错误数据太多，不再继续显示\e[0m，可打开 \e[031m ${NEW_TARGET_SYSDIR}/logs/build_error.log \e[0m 文件查看更多信息。"
+						else
+							cat ${NEW_TARGET_SYSDIR}/logs/build_error.log
+						fi
+					fi
+					exit 1
+				fi
+				continue
+				;;
+		esac
 	fi
 
 	if [ -f ${NEW_BASE_DIR}/env/${STEP_STAGE}/overlay.set ]; then
@@ -2131,7 +2419,32 @@ do
 
 	create_os_run "${SCRIPT_FILE}" "${STEP_STAGE}" "${PACKAGE_NAME}" "${PACKAGE_INDEX}"
 
-	if [ -f ${NEW_BASE_DIR}/env/${STEP_STAGE}/overlay.set ]; then
+	if [ "x${STEP_STAGE}" == "xhost-tools" ] || [ "x${STEP_STAGE}" == "xcross-tools" ]; then
+		if [ "x${PACKAGE_NAME}" != "xfinal_run" ] && [ "x${PACKAGE_SET_STATUS_FILE}" == "x1" ] && [ "x${SINGLE_PACKAGE}" == "x0" ]; then
+			if [ -d ${NEW_TARGET_SYSDIR}/${STEP_STAGE} ]; then
+				mkdir -p ${NEW_TARGET_SYSDIR}/${STEP_STAGE}/Yongbao/status/
+				PACKAGE_INFO=$(cat ${SCRIPTS_DIR}/step/${STEP_STAGE}/${PACKAGE_NAME}.info)
+				if [ "x${PACKAGE_INFO}" != "x" ]; then
+					PACKAGE_INFO_VERSION="$(echo ${PACKAGE_INFO} | awk -F'|' '{ print $2 }' | sed "s@-default\$@@g")"
+					PACKAGE_INFO_NAME="$(echo ${PACKAGE_INFO} | awk -F'|' '{ print $3 }')"
+					if [ "x${OPT_SET_VERSION_INDEX}" != "x" ]; then
+						PACKAGE_INFO_NAME="${PACKAGE_INFO_NAME}.${OPT_SET_VERSION_INDEX}"
+					fi
+					if [ "x${PACKAGE_INFO_NAME}" != "x" ] && [ "x${PACKAGE_INFO_NAME}" != "xNULL" ]; then
+						if [ "x${PACKAGE_GIT_COMMIT}" == "x" ]; then
+							echo "${PACKAGE_INFO_VERSION}" > ${NEW_TARGET_SYSDIR}/${STEP_STAGE}/Yongbao/status/${PACKAGE_INFO_NAME}
+						else
+							if [ -f ${NEW_TARGET_SYSDIR}/common_files/${PACKAGE_INFO_NAME}.version ]; then
+								cat ${NEW_TARGET_SYSDIR}/common_files/${PACKAGE_INFO_NAME}.version > ${NEW_TARGET_SYSDIR}/${STEP_STAGE}/Yongbao/status/${PACKAGE_INFO_NAME}
+							else
+								echo "git_$(echo ${PACKAGE_GIT_COMMIT} | awk -F'=' '{ print $2 }' | cut -c 1-12)" > ${NEW_TARGET_SYSDIR}/${STEP_STAGE}/Yongbao/status/${PACKAGE_INFO_NAME}
+							fi
+						fi
+					fi
+				fi
+			fi
+		fi
+	elif [ -f ${NEW_BASE_DIR}/env/${STEP_STAGE}/overlay.set ]; then
 		SAVEFILE_OVERLAY_NAME=""
 		if [ "x${SET_OVERLAY_DIR}" == "x" ]; then
 			SAVEFILE_OVERLAY_NAME=$(get_overlay_dirname ${NEW_BASE_DIR}/env/${STEP_STAGE}/overlay.set)
@@ -2192,13 +2505,33 @@ done
 if [ "x$?" == "x0" ]; then
 	echo -e "\r编译制作过程完成。\033[0K\n"
 
+	if [ -f ${NEW_TARGET_SYSDIR}/logs/build_error.log ]; then
+		echo -e "\e[31m本次编译存在以下错误步骤，请检查。\e[0m"
+		if (( $(wc -l workbase/logs/build_error.log |awk -F' ' '{ print $1 }') >= 15 )); then
+			head -n15 ${NEW_TARGET_SYSDIR}/logs/build_error.log
+			echo -e "\e[031m......\e[0m"
+			echo -e "\e[031m错误数据太多，不再继续显示\e[0m，可打开 \e[031m ${NEW_TARGET_SYSDIR}/logs/build_error.log \e[0m 文件查看更多信息。"
+		else
+			cat ${NEW_TARGET_SYSDIR}/logs/build_error.log
+		fi
+		exit
+	fi
+
 	cat ${NEW_TARGET_SYSDIR}/logs/info_pool
 	
 	if [ "x${1}" == "x" ]; then
-		echo "接下来可以使用 ./strip_os.sh 脚本来清除调试信息，使用 ./install_os_run.sh 安装系统启动脚本，使用 ./release_info.sh 来创建软件包信息汇总 ，以及使用 ./pack_os.sh 脚本来打包系统。"
+		echo "接下来可以使用 ./strip_os.sh $([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo "-f ${SET_OVERLAY_DIR}") 脚本来清除调试信息，使用 ./install_os_run.sh 安装系统启动脚本，使用 ./release_info.sh 来创建软件包信息汇总 ，以及使用 ./pack_os.sh $([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo "-f ${SET_OVERLAY_DIR}") 脚本来打包系统。"
 	fi
 else
 	exit
 fi
 echo "编译制作过程完成。" >> ${NEW_TARGET_SYSDIR}/logs/build_log
 echo "------------$(date)-------------" >> ${NEW_TARGET_SYSDIR}/logs/build_log
+
+while mount | grep "on ${NEW_TARGET_SYSDIR}/cross-tools type " > /dev/null
+do
+	echo "卸载已挂载的目录 ${NEW_TARGET_SYSDIR}/cross-tools ..."
+	overlay_umount_cross_tools
+done
+
+
