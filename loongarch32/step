@@ -27,6 +27,7 @@
 %step/host-tools/meson|
 %step/host-tools/MarkupSafe|
 %step/cross-tools/Jinja2|
+%step/host-tools/distlib|
 %step/host-tools/guile|
 %step/host-tools/make|
 %step/cross-tools/NULL|
@@ -212,4 +213,5 @@
 %step/sysroot/ptyprocess|
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
+%step/boot/linux-kernel|
 %step/sysroot/create_base_files|
