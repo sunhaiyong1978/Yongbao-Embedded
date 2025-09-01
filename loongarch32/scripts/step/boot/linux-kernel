@@ -1,0 +1,38 @@
+source env/boot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=boot
+export STEP_PACKAGENAME=linux-kernel
+export PACKAGE_VERSION=32bit-test
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/boot/linux-kernel/32bit-test/
+rm -rf ${BUILD_DIRECTORY}/linux-32bit-test_git
+tar xvf ${DOWNLOADDIR}/linux-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/linux-32bit-test_git
+	CONFIG_STR=$(get_user_set_env config "default")
+	
+	make mrproper
+	cp -af ${RESOURCEDIR}/linux-config-6.x_${CONFIG_STR} ./.config
+	sed -i "/^CONFIG_LOCALVERSION/s@=\"\(.*\)\"@=\"_${CONFIG_STR}\"@g" .config
+	make ARCH=${ARCH_FAMILY} CROSS_COMPILE=${CROSS_TARGET}- olddefconfig
+	PKG_CONFIG_SYSROOT_DIR="" \
+		make -j${JOBS} ARCH=${ARCH_FAMILY} CROSS_COMPILE=${CROSS_TARGET}-
+	PKG_CONFIG_SYSROOT_DIR="" \
+		make ARCH=${ARCH_FAMILY} CROSS_COMPILE=${CROSS_TARGET}- INSTALL_MOD_PATH=dest modules_install
+	LINUX_KERNEL_VERSION=$(make kernelversion)
+	
+	mkdir -p ${DIST_DIRECTORY}/os/linux-kernel/${LINUX_KERNEL_VERSION}/${CONFIG_STR}/img/usr/lib/modules/
+	mkdir -p ${DIST_DIRECTORY}/os/linux-kernel/${LINUX_KERNEL_VERSION}/${CONFIG_STR}/boot/
+	cp -af arch/${ARCH_FAMILY}/boot/vmlinux.efi ${DIST_DIRECTORY}/os/linux-kernel/${LINUX_KERNEL_VERSION}/${CONFIG_STR}/boot/vmlinux.efi
+	rm dest/lib/modules/*/build
+	find dest -name "*.ko" -exec ${CROSS_TARGET}-strip --strip-debug '{}' ';'
+	cp -af dest/lib/modules/* ${DIST_DIRECTORY}/os/linux-kernel/${LINUX_KERNEL_VERSION}/${CONFIG_STR}/img/usr/lib/modules/
+	cp -af .config ${DIST_DIRECTORY}/os/linux-kernel/${LINUX_KERNEL_VERSION}/${CONFIG_STR}/boot/vmlinux.config
+
+	if [ -f ${RESOURCEDIR}/linux-parm_${CONFIG_STR} ]; then
+		cat ${RESOURCEDIR}/linux-parm_${CONFIG_STR} | grep -v "^#" | head -n1  > ${DIST_DIRECTORY}/os/linux-kernel/${LINUX_KERNEL_VERSION}/${CONFIG_STR}/boot/boot.parm
+	fi
+
+	echo "${LINUX_KERNEL_VERSION}" > ${COMMON_DIR}/linux-kernel.version
+	echo "${LINUX_KERNEL_VERSION}" > ${COMMON_DIR}/linux.version
+popd 
+rm -rf ${BUILD_DIRECTORY}/linux-32bit-test_git
