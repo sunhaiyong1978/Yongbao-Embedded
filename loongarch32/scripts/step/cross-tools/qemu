@@ -9,6 +9,7 @@ rm -rf ${BUILD_DIRECTORY}/qemu_git-32bit-test_git
 tar xvf ${DOWNLOADDIR}/qemu_git-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/qemu_git-32bit-test_git
     sed -i "/HAVE_OPENAT2_H/d" meson.build
+    sed -i "s@la32r@max32@g" linux-user/loongarch/target_elf.h
     mkdir -p build
     pushd build
 	LDFLAGS="" \
