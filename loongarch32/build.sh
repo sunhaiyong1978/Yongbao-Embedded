@@ -981,10 +981,10 @@ function overlay_mount
 		mkdir -p ${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}
 		mkdir -p ${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change
 		sync
-		sudo mount -t overlay overlay -o lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
+		sudo mount -t overlay overlay -o index=off,lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
 		if [ "x$?" != "x0" ]; then
 			echo "挂载sysroot错误！"
-			echo "sudo mount -t overlay overlay -o lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
+			echo "sudo mount -t overlay overlay -o index=off,lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
 			exit -2
 		fi
 		if [ ! -f ${SCRIPTS_DIR}/step/${1}/${PACKAGE_NAME}.tempfix ]; then
@@ -1018,17 +1018,17 @@ function overlay_mount
 
 	        if ([ "x${OVERLAY_TEMP_FIX}" == "x1" ] && [ -f ${SCRIPTS_DIR}/step/${1}/overlay_temp_fix_run ]) || [ -f ${SCRIPTS_DIR}/step/${1}/${PACKAGE_NAME}.tempfix ]; then
 #		if [ "x${OVERLAY_TEMP_FIX}" == "x1" ] && [ -f ${SCRIPTS_DIR}/step/${1}/overlay_temp_fix_run ]; then
-			sudo mount -t overlay overlay -o lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
+			sudo mount -t overlay overlay -o index=off,lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
 			if [ "x$?" != "x0" ]; then
 				echo "挂载sysroot错误！"
-				echo "sudo mount -t overlay overlay -o lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
+				echo "sudo mount -t overlay overlay -o index=off,lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
 				exit -2
 			fi
 		else
-			sudo mount -t overlay overlay -o lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
+			sudo mount -t overlay overlay -o index=off,lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
 			if [ "x$?" != "x0" ]; then
 				echo "挂载sysroot错误！"
-				echo "sudo mount -t overlay overlay -o lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
+				echo "sudo mount -t overlay overlay -o index=off,lowerdir=${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/packages/${1}/${PACKAGE_NAME}/DEST,workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
 				exit -2
 			fi
 		fi
@@ -1055,26 +1055,26 @@ function overlay_mount
 #			fn_overlay_temp_fix_run "${1}"
 #			overlay_umount
 #			sync
-			sudo mount -t overlay overlay -o lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
+			sudo mount -t overlay overlay -o index=off,lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
 			if [ "x$?" != "x0" ]; then
 				echo "挂载sysroot错误！"
-				echo "sudo mount -t overlay overlay -o lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
+				echo "sudo mount -t overlay overlay -o index=off,lowerdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME}.change:${USE_OVERLAY_DIR}${LOWERDIR_LIST},upperdir=${NEW_TARGET_SYSDIR}/temp/temp_overlay/${1}/${PACKAGE_NAME},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
 				exit -2
 			fi
 		else
 			USE_OVERLAY_DIR="${USE_OVERLAY_DIR:0:-1}"
 			if [ "x${OVERLAY_TEMP_FIX}" != "x2" ]; then  # 除了final_run之外的步骤
-				sudo mount -t overlay overlay -o lowerdir=${LOWERDIR_LIST},upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
+				sudo mount -t overlay overlay -o index=off,lowerdir=${LOWERDIR_LIST},upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
 				if [ "x$?" != "x0" ]; then
 					echo "挂载sysroot错误！"
-					echo "sudo mount -t overlay overlay -o lowerdir=${LOWERDIR_LIST},upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
+					echo "sudo mount -t overlay overlay -o index=off,lowerdir=${LOWERDIR_LIST},upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
 					exit -2
 				fi
 			else  # final_run步骤
-				sudo mount -t overlay overlay -o lowerdir=${NEW_TARGET_SYSDIR}/overlaydir/.lowerdir,upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
+				sudo mount -t overlay overlay -o index=off,lowerdir=${NEW_TARGET_SYSDIR}/overlaydir/.lowerdir,upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot
 				if [ "x$?" != "x0" ]; then
 					echo "挂载sysroot错误！"
-					echo "sudo mount -t overlay overlay -o lowerdir=${NEW_TARGET_SYSDIR}/overlaydir/.lowerdir,upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
+					echo "sudo mount -t overlay overlay -o index=off,lowerdir=${NEW_TARGET_SYSDIR}/overlaydir/.lowerdir,upperdir=${USE_OVERLAY_DIR},workdir=${NEW_TARGET_SYSDIR}/overlaydir/.workerdir ${NEW_TARGET_SYSDIR}/sysroot"
 					exit -2
 				fi
 			fi
@@ -1565,6 +1565,9 @@ function os_run_clean
 			if [ -f ${NEW_TARGET_SYSDIR}/scripts/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run ]; then
 				rm ${NEW_TARGET_SYSDIR}/scripts/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
 			fi
+			if [ -f ${NEW_TARGET_SYSDIR}/scripts/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run ]; then
+				rm ${NEW_TARGET_SYSDIR}/scripts/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
+			fi
 		else
 			if [ -f ${NEW_TARGET_SYSDIR}/scripts/update/os_first_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run ]; then
 #				echo "清理 ${NEW_TARGET_SYSDIR}/scripts/update/os_first_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run "
@@ -1572,6 +1575,9 @@ function os_run_clean
 			fi
 			if [ -f ${NEW_TARGET_SYSDIR}/scripts/update/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run ]; then
 				rm ${NEW_TARGET_SYSDIR}/scripts/update/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
+			fi
+			if [ -f ${NEW_TARGET_SYSDIR}/scripts/update/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run ]; then
+				rm ${NEW_TARGET_SYSDIR}/scripts/update/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
 			fi
 		fi
 	fi
@@ -1609,6 +1615,11 @@ function create_os_run
 #					echo " tools/show_package_script.sh ${WORLD_PARM} -e -n ${SCRIPT_FILE} "os_start_run" > ${NEW_TARGET_SYSDIR}/scripts/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run"
 					tools/show_package_script.sh ${WORLD_PARM} -e -n ${SCRIPT_FILE} "os_start_run" > ${NEW_TARGET_SYSDIR}/scripts/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
 				fi
+				if [ -f ${SCRIPTS_DIR}/step/${SCRIPT_FILE}.os_final_run ]; then
+					echo ""
+					echo "创建 ${NEW_TARGET_SYSDIR}/scripts/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run "
+					tools/show_package_script.sh ${WORLD_PARM} -e -n ${SCRIPT_FILE} "os_final_run" > ${NEW_TARGET_SYSDIR}/scripts/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
+				fi
 			fi
 		else
 #			echo "${NEW_TARGET_SYSDIR}/status/update/${STEP_STAGE}/${STATUS_FILE} ...."
@@ -1623,6 +1634,11 @@ function create_os_run
 					echo ""
 					echo "创建 ${NEW_TARGET_SYSDIR}/scripts/update/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run "
 					tools/show_package_script.sh ${WORLD_PARM} -e -n ${SCRIPT_FILE} "os_start_run" > ${NEW_TARGET_SYSDIR}/scripts/update/os_start_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
+				fi
+				if [ -f ${SCRIPTS_DIR}/step/${SCRIPT_FILE}.os_final_run ]; then
+					echo ""
+					echo "创建 ${NEW_TARGET_SYSDIR}/scripts/update/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run "
+					tools/show_package_script.sh ${WORLD_PARM} -e -n ${SCRIPT_FILE} "os_final_run" > ${NEW_TARGET_SYSDIR}/scripts/update/os_final_run/${STEP_STAGE}.${OS_RUN_OVERLAY_DIR}.${PACKAGE_NAME}.run
 				fi
 			fi
 		fi
@@ -1859,6 +1875,153 @@ function start_download_source_for_version_index
 	cp_file_and_sources 0
 }
 
+function save_watch_step
+{
+	WATCH_ID_TEMP=$(date +%s)
+	if [ -f ${SCRIPTS_DIR}/step/${1}/${2}.watch_step ]; then
+# 		cat ${SCRIPTS_DIR}/step/${1}/${2}.watch_step | grep -v "^#" | while read watch_line
+# 		do
+		while IFS= read -r watch_line; do
+			[[ $watch_line == "#"* ]] && continue
+			WATCH_STAGE=$(echo "${watch_line}" | awk -F'/' '{ print $1 }')
+			WATCH_PACKAGE_NAME=$(echo "${watch_line}" | awk -F'/' '{ print $2 }')
+			if [ "x${WATCH_PACKAGE_NAME}" == "x" ]; then
+				WATCH_PACKAGE_NAME=${WATCH_STAGE}
+				WATCH_STAGE=${1}
+			fi
+			if [ ! -d ${NEW_TARGET_SYSDIR}/notice/${WATCH_STAGE}/${WATCH_PACKAGE_NAME}/ ]; then
+				mkdir -p ${NEW_TARGET_SYSDIR}/notice/${WATCH_STAGE}/${WATCH_PACKAGE_NAME}
+			fi
+			WATCH_PACKAGE_FILE="${WATCH_STAGE}/${WATCH_PACKAGE_NAME}/$(echo ${3} | sed -e "s@^${2}_@NAME${2}NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE${1}STAGE@g")"
+			echo ${WATCH_ID_TEMP} > ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE}
+			touch ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE}.status
+		done < "${SCRIPTS_DIR}/step/${1}/${2}.watch_step"
+# 		done
+	fi
+	echo "${WATCH_ID_TEMP}"
+	return
+}
+
+function update_watch_id
+{
+	if [ -f ${SCRIPTS_DIR}/step/${1}/${2}.watch_step ]; then
+		cat ${SCRIPTS_DIR}/step/${1}/${2}.watch_step | grep -v "^#" | while read watch_line
+		do
+			WATCH_STAGE=$(echo "${watch_line}" | awk -F'/' '{ print $1 }')
+			WATCH_PACKAGE_NAME=$(echo "${watch_line}" | awk -F'/' '{ print $2 }')
+			if [ "x${WATCH_PACKAGE_NAME}" == "x" ]; then
+				WATCH_PACKAGE_NAME=${WATCH_STAGE}
+				WATCH_STAGE=${1}
+			fi
+			if [ ! -d ${NEW_TARGET_SYSDIR}/notice/${WATCH_STAGE}/${WATCH_PACKAGE_NAME}/ ]; then
+				mkdir -p ${NEW_TARGET_SYSDIR}/notice/${WATCH_STAGE}/${WATCH_PACKAGE_NAME}
+			fi
+			WATCH_PACKAGE_FILE="${WATCH_STAGE}/${WATCH_PACKAGE_NAME}/$(echo ${3} | sed -e "s@^${2}_@NAME${2}NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE${1}STAGE@g")"
+			echo "${4}" > ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE}
+			touch ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE}.status
+
+# 			if [ ! -f ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE} ]; then
+# 				WATCH_ID_TEMP=$(date +%s)
+# 				echo ${WATCH_ID_TEMP} > ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE}
+# 				echo ${WATCH_ID_TEMP}
+# 			else
+# 				cat ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE} | head -n1
+# 			fi
+
+		done
+	fi
+	return
+}
+
+function update_notice_package
+{
+	if [ "x${3}" == "x" ]; then
+		return
+	fi
+	if [ -d ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/ ]; then
+ 		find ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/ -name "$(echo ${3} | sed -e "s@^${2}_@NAME\*NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE\*STAGE@g").status" -exec mv '{}' '{}.bak' ';'
+# 		find ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/ -name "$(echo ${3} | sed -e "s@^${2}_@NAME\*NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE\*STAGE@g")" -exec echo "${4}" > '{}' ';'
+# 		find ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/ -name "$(echo ${3} | sed -e "s@^${2}_@NAME\*NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE\*STAGE@g")" -exec bash -c 'echo "${4}" > "{}"' ';'
+		find ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/ -name "$(echo ${3} | sed -e "s@^${2}_@NAME\*NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE\*STAGE@g")" -exec bash -c 'echo "$1" > "{}"' -- "${4}" ';'
+		echo "${4}" > ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/${3}
+	fi
+}
+
+function test_watch_step
+{
+	CURRENT_WATCH_ID=0
+	TEMP_WATCH_ID=0
+	GET_WATCH_ID=0
+	if [ -d ${NEW_TARGET_SYSDIR}/notice/${1}/${2} ]; then
+		if [ -f ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/${3} ]; then
+# 			echo "${NEW_TARGET_SYSDIR}/notice/${1}/${2}/${3}"
+			TEMP_WATCH_ID=$(cat ${NEW_TARGET_SYSDIR}/notice/${1}/${2}/${3} | head -n1)
+		else
+# 			echo "${NEW_TARGET_SYSDIR}/status/${1}/${3}"
+			TEMP_WATCH_ID=$(stat -c %Y ${NEW_TARGET_SYSDIR}/status/${1}/${3})
+		fi
+	fi
+# 	echo "TEMP_WATCH_ID: ${TEMP_WATCH_ID}"
+	if [ -f ${SCRIPTS_DIR}/step/${1}/${2}.watch_step ]; then
+# 		cat ${SCRIPTS_DIR}/step/${1}/${2}.watch_step | grep -v "^#" | while read watch_line
+# 		do
+		while IFS= read -r watch_line; do
+			[[ $watch_line == "#"* ]] && continue
+
+			WATCH_STAGE=$(echo "${watch_line}" | awk -F'/' '{ print $1 }')
+			WATCH_PACKAGE_NAME=$(echo "${watch_line}" | awk -F'/' '{ print $2 }')
+			if [ "x${WATCH_PACKAGE_NAME}" == "x" ]; then
+				WATCH_PACKAGE_NAME=${WATCH_STAGE}
+				WATCH_STAGE=${1}
+			fi
+			if [ -d ${NEW_TARGET_SYSDIR}/notice/${WATCH_STAGE}/${WATCH_PACKAGE_NAME} ]; then
+				WATCH_PACKAGE_FILE="${WATCH_STAGE}/${WATCH_PACKAGE_NAME}/$(echo ${3} | sed -e "s@^${2}_@NAME${2}NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE${1}STAGE@g")"
+				if [ -f ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE}.status ]; then
+					continue;
+				else
+					if [ -f ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE} ]; then
+# 						GET_WATCH_ID=$(cat ${NEW_TARGET_SYSDIR}/notice/${WATCH_STAGE}/${WATCH_PACKAGE_NAME}/$(echo ${3} | sed -e "s@^${2}_@NAME${2}NAME_@g" -e "s@_${1}_[0-9]\{5\}@_STAGE${1}STAGE@g"))
+# 						echo "cat ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE}"
+# 						echo "GET_WATCH_ID: $(cat ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE})"
+						GET_WATCH_ID=$(cat ${NEW_TARGET_SYSDIR}/notice/${WATCH_PACKAGE_FILE})
+						if [ "x${GET_WATCH_ID}" == "x" ]; then
+							GET_WATCH_ID=$(date +%s)
+						fi
+						CURRENT_WATCH_ID=$(( CURRENT_WATCH_ID < GET_WATCH_ID ? GET_WATCH_ID : CURRENT_WATCH_ID ))
+					else
+						CURRENT_WATCH_ID=$(date +%s)
+					fi
+				fi
+			else
+				CURRENT_WATCH_ID=$(date +%s)
+				continue;
+			fi
+		done < "${SCRIPTS_DIR}/step/${1}/${2}.watch_step"
+# 		done
+	fi
+
+# 	if [ "x${CURRENT_WATCH_ID}" == "x0" ]; then
+# 		echo "0"
+# 		return
+# 	fi
+
+	if [ "x${TEMP_WATCH_ID}" == "x${CURRENT_WATCH_ID}" ]; then
+		echo "0"
+		return
+	fi
+
+# 	if [ -d ${NEW_TARGET_SYSDIR}/notice/${1}/${2} ]; then
+# 		if (( CURRENT_WATCH_ID > GET_WATCH_ID )); then
+# 			echo "1"
+# 			return
+# 		fi
+# 	fi
+
+# 	echo "${CURRENT_WATCH_ID}"
+	echo "$(( CURRENT_WATCH_ID >= TEMP_WATCH_ID ? CURRENT_WATCH_ID : 0 ))"
+	return
+}
+
 
 mkdir -p ${NEW_TARGET_SYSDIR}
 
@@ -1881,7 +2044,7 @@ echo "" > ${NEW_TARGET_SYSDIR}/package_env.conf
 create_date_suff
 
 if [ -f ${NEW_TARGET_SYSDIR}/logs/build_error.log ]; then
-	mv ${NEW_TARGET_SYSDIR}/logs/build_error.log{,.${DATA_SUFF}}
+	mv ${NEW_TARGET_SYSDIR}/logs/build_error.log{,.$(stat -c %Y ${NEW_TARGET_SYSDIR}/logs/build_error.log)}
 fi
 
 # 保存完整的执行命令，以备后续查看。
@@ -1931,8 +2094,8 @@ mkdir -p ${NEW_TARGET_SYSDIR}/build
 mkdir -p ${NEW_TARGET_SYSDIR}/dist
 mkdir -p ${NEW_TARGET_SYSDIR}/temp/temp_overlay
 mkdir -p ${NEW_TARGET_SYSDIR}/common_files
-mkdir -p ${NEW_TARGET_SYSDIR}/scripts/os_{first,start}_run
-mkdir -p ${NEW_TARGET_SYSDIR}/scripts/update/os_{first,start}_run
+mkdir -p ${NEW_TARGET_SYSDIR}/scripts/os_{first,start,final}_run
+mkdir -p ${NEW_TARGET_SYSDIR}/scripts/update/os_{first,start,final}_run
 
 
 mkdir -p ${NEW_TARGET_SYSDIR}/overlaydir/{.lowerdir,.workerdir}
@@ -2135,7 +2298,7 @@ do
 			if [ "x$(get_all_set_env_expr "${PACKAGE_ALL_OPT}")" == "x" ]; then
 				echo -e "\r\e[33m发现 ${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包当前设置不符合制作条件。\e[0m"
 			else
-				echo -e "\r\e[33m发现 ${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包因 "$(get_all_set_env_expr "${PACKAGE_ALL_OPT}")" 设置而不符合制作条件。\e[0m"
+				echo -e "\r\e[33m发现 ${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包因 "$(get_all_set_env_expr "${PACKAGE_ALL_OPT}")" 设置而不符合制作条件。跳过！\e[0m"
 			fi
 			continue;
 		fi
@@ -2205,6 +2368,7 @@ do
 		SCRIPT_FILE=$(echo "${line}" | awk -F' ' '{ print $2 }' | sed "s@ *step\/@@g").${OPT_SET_VERSION_INDEX}
 	fi
 
+	TEST_WATCH_PACKAGE=0
 	if [ "x${PACKAGE_NAME}" == "xbegin_run" ] || [ "x${PACKAGE_NAME}" == "xoverlay_before_run" ] || [ "x${PACKAGE_NAME}" == "xoverlay_after_run" ] || [ "x${PACKAGE_NAME}" == "xoverlay_temp_fix_run" ]; then
 		echo "${STEP_STAGE}" >> ${NEW_TARGET_SYSDIR}/logs/step_${PACKAGE_NAME}_save
 		continue;
@@ -2218,13 +2382,21 @@ do
 #			echo "${PACKAGE_GIT_COMMIT}tools/show_package_script.sh ${WORLD_PARM} -n ${SCRIPT_FILE}"
 			echo "${PACKAGE_GIT_COMMIT}$(tools/show_package_script.sh ${WORLD_PARM} -n ${SCRIPT_FILE})" | md5sum -c ${NEW_TARGET_SYSDIR}/status/${STEP_STAGE}/${STATUS_FILE} 2>/dev/null > /dev/null
 			if [ "$?" == "0" ] && ([ "x${FORCE_BUILD}" == "x0" ] || [ "x${FORCE_ALL_BUILD}" == "x0" ]); then
-				if [ "x${SHOW_PACKAGE_OPT}" == "x" ]; then
-					echo -n -e "\r${STEP_STAGE}组中的${PACKAGE_NAME}软件包已完成制作。\033[0K"
+				TEST_WATCH_PACKAGE=$(test_watch_step "${STEP_STAGE}" "${PACKAGE_NAME}" "${STATUS_FILE}")
+#  				test_watch_step "${STEP_STAGE}" "${PACKAGE_NAME}" "${STATUS_FILE}"
+#  				echo "aaaaaaaaaaaaaaaa ${TEST_WATCH_PACKAGE} aaaaaaaaaaaaaaaaa"
+# 				TEST_WATCH_PACKAGE=0
+				if [ "x${TEST_WATCH_PACKAGE}" == "x0" ]; then
+					if [ "x${SHOW_PACKAGE_OPT}" == "x" ]; then
+						echo -n -e "\r${STEP_STAGE}组中的${PACKAGE_NAME}软件包已完成制作。\033[0K"
+					else
+						echo -n -e "\r${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包 ${SHOW_PACKAGE_OPT} 已完成制作。\033[0K"
+					fi
+					create_os_run "${SCRIPT_FILE}" "${STEP_STAGE}" "${PACKAGE_NAME}" "${PACKAGE_INDEX}"
+					continue;
 				else
-					echo -n -e "\r${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包 ${SHOW_PACKAGE_OPT} 已完成制作。\033[0K"
+					echo -e "\r\e[033m${STEP_STAGE}组中的${PACKAGE_NAME}因相关步骤的重构而要重新执行。\e[0m\033[0K"
 				fi
-				create_os_run "${SCRIPT_FILE}" "${STEP_STAGE}" "${PACKAGE_NAME}" "${PACKAGE_INDEX}"
-				continue;
 			else
 				if [ ! -d ${NEW_TARGET_SYSDIR}/status/update/${STEP_STAGE}/ ]; then
 					mkdir -p ${NEW_TARGET_SYSDIR}/status/update/${STEP_STAGE}
@@ -2233,13 +2405,18 @@ do
 #					echo "检查update目录中的${STATUS_FILE}状态文件。"
 					echo "${PACKAGE_GIT_COMMIT}$(tools/show_package_script.sh ${WORLD_PARM} -n ${SCRIPT_FILE})" | md5sum -c ${NEW_TARGET_SYSDIR}/status/update/${STEP_STAGE}/${STATUS_FILE} 2>/dev/null > /dev/null
 					if [ "$?" == "0" ] && ([ "x${FORCE_BUILD}" == "x0" ] || [ "x${FORCE_ALL_BUILD}" == "x0" ]); then
-						if [ "x${SHOW_PACKAGE_OPT}" == "x" ]; then
-							echo -n -e "\r${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包已完成制作。\033[0K"
+						TEST_WATCH_PACKAGE=$(test_watch_step "${STEP_STAGE}" "${PACKAGE_NAME}" "${STATUS_FILE}")
+						if [ "x${TEST_WATCH_PACKAGE}" == "x0" ]; then
+							if [ "x${SHOW_PACKAGE_OPT}" == "x" ]; then
+								echo -n -e "\r${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包已完成制作。\033[0K"
+							else
+								echo -n -e "\r${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包 ${SHOW_PACKAGE_OPT} 已完成制作。\033[0K"
+							fi
+							create_os_run "${SCRIPT_FILE}" "${STEP_STAGE}" "${PACKAGE_NAME}" "${PACKAGE_INDEX}"
+							continue;
 						else
-							echo -n -e "\r${STEP_STAGE} 组中的 ${PACKAGE_NAME} 软件包 ${SHOW_PACKAGE_OPT} 已完成制作。\033[0K"
+							echo -e "\r${STEP_STAGE}组中的${PACKAGE_NAME}软件包因相关步骤的重构而要重新执行。\033[0K"
 						fi
-						create_os_run "${SCRIPT_FILE}" "${STEP_STAGE}" "${PACKAGE_NAME}" "${PACKAGE_INDEX}"
-						continue;
 					else
 						echo -e "\r${STEP_STAGE}组中的${PACKAGE_NAME}软件包制作步骤文件内容发生变化，需要重新执行。\033[0K"
 					fi
@@ -2287,7 +2464,7 @@ do
 		echo -n "运行 ${STEP_STAGE} 初始化脚本..."
 		tools/run_package_script.sh ${WORLD_PARM} ${STEP_STAGE}/begin_run >${NEW_TARGET_SYSDIR}/logs/begin_run_${STEP_STAGE}.log 2>&1
 		if [ "x$?" != "x0" ]; then
-			echo "错误！"
+			echo -e "\e[031m错误！\e[0m"
 			tools/show_package_script.sh ${WORLD_PARM} ${STEP_STAGE}/begin_run
 			echo "${STEP_STAGE} 初始化脚本运行错误!"
 			echo "错误日志请查看 ${NEW_TARGET_SYSDIR}/logs/begin_run_${STEP_STAGE}.log 文件。"
@@ -2336,24 +2513,27 @@ do
 
 		case "x${BUILD_ERROR_LIMITE}" in
 			x0)
-				echo "* ${STEP_STAGE}/${PACKAGE_NAME} $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}")" >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "* ${STEP_STAGE}/${PACKAGE_NAME} $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
 				echo "    错误日志请查看 ${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log 文件。"  >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
-				echo "    进入构建环境进行调试使用命令： tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${SET_OVERLAY_DIR}")" || echo " -S ${OPT_SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} "  >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "    进入构建环境进行调试使用命令： tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${OPT_SET_OVERLAY_DIR}")" || echo " -S ${SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} "  >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				if [ "${SET_OVERLAY_DIR}" != "" ] || [ "${OPT_SET_OVERLAY_DIR}" != "" ]; then
+					overlay_umount
+				fi
 				continue
 				;;
 			x1)
 				tools/show_package_script.sh ${WORLD_PARM} ${SCRIPT_FILE}
-				echo -e "${SCRIPT_FILE}  $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}") \e[31m制作错误!\e[0m"
+				echo -e "${SCRIPT_FILE}  $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${SET_OVERLAY_DIR}") \e[31m制作错误!\e[0m"
 				echo -e "错误日志请查看 \e[31m ${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log \e[0m 文件。"
 				REBUILD_ENV=$(format_package_env_to_string)
-				echo -e "进入构建环境进行调试使用命令： \e[32m tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${SET_OVERLAY_DIR}")" || echo " -S ${OPT_SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} \e[0m"
+				echo -e "进入构建环境进行调试使用命令： \e[32m tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${OPT_SET_OVERLAY_DIR}")" || echo " -S ${SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} \e[0m"
 				exit 1
 				;;
 			*)
 				((BUILD_ERROR_COUNT--))
-				echo "* ${STEP_STAGE}/${PACKAGE_NAME} $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}")" >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "* ${STEP_STAGE}/${PACKAGE_NAME} $([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " 指定交叉工具链目录: ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " 指定上级挂载目录: ${OPT_SET_PARENT_DIR}")$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " 指定安装目录: ${OPT_SET_OVERLAY_DIR}")" || echo " 指定安装目录: ${SET_OVERLAY_DIR}")" >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
 				echo "    错误日志请查看 ${NEW_TARGET_SYSDIR}/logs/${STATUS_LOG_FILE}.log 文件。"  >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
-				echo "    进入构建环境进行调试使用命令： tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${SET_OVERLAY_DIR}")" || echo " -S ${OPT_SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} " >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
+				echo "    进入构建环境进行调试使用命令： tools/enter_package_env.sh ${WORLD_PARM}$([[ "${REBUILD_ENV}" == "" ]] && echo "" || echo " -e ${REBUILD_ENV}")$([[ "${SET_CROSSTOOLS_DIR}" == "" ]] && echo "" || echo " -C ${SET_CROSSTOOLS_DIR}")$([[ "${OPT_SET_PARENT_DIR}" == "" ]] && echo "" || echo " -O ${OPT_SET_PARENT_DIR}")$([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ "${OPT_SET_OVERLAY_DIR}" == "" ]] && echo "" || echo " -S ${OPT_SET_OVERLAY_DIR}")" || echo " -S ${SET_OVERLAY_DIR}") ${STEP_STAGE}/${PACKAGE_NAME} " >> ${NEW_TARGET_SYSDIR}/logs/build_error.log
 				if [ "x${BUILD_ERROR_COUNT}" == "x0" ]; then
 					echo -e "\e[31m错误数量达到限制，构建过程停止。\e[0m"
 					echo -e "\e[31m本次编译存在以下错误步骤，请检查。\e[0m"
@@ -2369,6 +2549,7 @@ do
 					fi
 					exit 1
 				fi
+				overlay_umount
 				continue
 				;;
 		esac
@@ -2411,11 +2592,23 @@ do
 			fi
 		else
 			echo "${PACKAGE_GIT_COMMIT}$(tools/show_package_script.sh ${WORLD_PARM} -n ${SCRIPT_FILE})" | md5sum > ${NEW_TARGET_SYSDIR}/status/${STEP_STAGE}/${STATUS_FILE}
-			
+		fi
+
+		if [ "x${TEST_WATCH_PACKAGE}" == "x0" ]; then
+			# 默认运行或强制运行，创建 WATCH_ID 。
+# 			echo -n "强制执行 $(date +%s)"
+			WATCH_ID=$(save_watch_step "${STEP_STAGE}" "${PACKAGE_NAME}" "${STATUS_FILE}")
+# 			echo "${WATCH_ID}"
+# 			echo "update_notice_package \"${STEP_STAGE}\" \"${PACKAGE_NAME}\" \"${STATUS_FILE}\" \"${WATCH_ID}\""
+			update_notice_package "${STEP_STAGE}" "${PACKAGE_NAME}" "${STATUS_FILE}" "${WATCH_ID}"
+		else
+			# 关注连带运行，传递 WATCH_ID , TEST_WATCH_PACKAGE 值为传递的 WATCH_ID 。
+			update_watch_id "${STEP_STAGE}" "${PACKAGE_NAME}" "${STATUS_FILE}" "${TEST_WATCH_PACKAGE}"
+			update_notice_package "${STEP_STAGE}" "${PACKAGE_NAME}" "${STATUS_FILE}" "${TEST_WATCH_PACKAGE}"
 		fi
 	fi
 
-	echo "完成！"
+	echo -e "\e[032m完成！\e[0m"
 
 	create_os_run "${SCRIPT_FILE}" "${STEP_STAGE}" "${PACKAGE_NAME}" "${PACKAGE_INDEX}"
 
@@ -2507,7 +2700,7 @@ if [ "x$?" == "x0" ]; then
 
 	if [ -f ${NEW_TARGET_SYSDIR}/logs/build_error.log ]; then
 		echo -e "\e[31m本次编译存在以下错误步骤，请检查。\e[0m"
-		if (( $(wc -l workbase/logs/build_error.log |awk -F' ' '{ print $1 }') >= 15 )); then
+		if (( $(wc -l ${NEW_TARGET_SYSDIR}/logs/build_error.log |awk -F' ' '{ print $1 }') >= 15 )); then
 			head -n15 ${NEW_TARGET_SYSDIR}/logs/build_error.log
 			echo -e "\e[031m......\e[0m"
 			echo -e "\e[031m错误数据太多，不再继续显示\e[0m，可打开 \e[031m ${NEW_TARGET_SYSDIR}/logs/build_error.log \e[0m 文件查看更多信息。"
@@ -2520,7 +2713,7 @@ if [ "x$?" == "x0" ]; then
 	cat ${NEW_TARGET_SYSDIR}/logs/info_pool
 	
 	if [ "x${1}" == "x" ]; then
-		echo "接下来可以使用 ./strip_os.sh $([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo "-f ${SET_OVERLAY_DIR}") 脚本来清除调试信息，使用 ./install_os_run.sh 安装系统启动脚本，使用 ./release_info.sh 来创建软件包信息汇总 ，以及使用 ./pack_os.sh $([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "" || echo "-f ${SET_OVERLAY_DIR}") 脚本来打包系统。"
+		echo "接下来可以使用 ./strip_os.sh $([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ -d ${NEW_TARGET_SYSDIR}/overlaydir_strip ]] && echo "-f" || echo "")" || echo "-f ${SET_OVERLAY_DIR}") 脚本来清除调试信息，使用 ./install_os_run.sh 安装系统启动脚本，$([[ -f info_set/release_sort ]] && echo "使用 ./release_info.sh 来创建软件包信息汇总 ，" || echo "" )以及使用 ./pack_os.sh $([[ "${SET_OVERLAY_DIR}" == "" ]] && echo "$([[ -d ${NEW_TARGET_SYSDIR}/dist/os/squashfs ]] && echo "-f" || echo "")" || echo "-f ${SET_OVERLAY_DIR}") 脚本来打包系统。"
 	fi
 else
 	exit
