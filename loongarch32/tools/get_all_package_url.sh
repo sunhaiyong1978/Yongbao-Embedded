@@ -143,7 +143,6 @@ function get_pkg_old_version
 }
 
 
-
 mkdir -p ${NEW_BASE_DIR}/downloads/sources/{files,hash}
 mkdir -p ${NEW_BASE_DIR}/downloads/sources/git
 FAIL_COUNT=1
@@ -250,25 +249,86 @@ do
 					PKG_GIT_BRANCH="$(cat ${SOURCES_DIR}/url/${i}.gitinfo | awk -F'|' '{ print $1 }')"
 					PKG_GIT_COMMIT="$(cat ${SOURCES_DIR}/url/${i}.gitinfo | awk -F'|' '{ print $2 }')"
 					PKG_GIT_SUBMODULE="$(cat ${SOURCES_DIR}/url/${i}.gitinfo | awk -F'|' '{ print $3 }')"
+					PKG_GIT_UPDATE_MODE="$(cat ${SOURCES_DIR}/url/${i}.gitinfo | awk -F'|' '{ print $4 }')"
+					PKG_GIT_FORMAT="$(cat ${SOURCES_DIR}/url/${i}.gitinfo | awk -F'|' '{ print $5 }')"
 				else
 					PKG_GIT_BRANCH=""
 					PKG_GIT_COMMIT=""
 					PKG_GIT_SUBMODULE="0"
+					PKG_GIT_UPDATE_MODE="手工"
+					PKG_GIT_FORMAT="source"
 				fi
 			else
 				if [ -f ${SOURCES_DIR}/url/${i}.${VERSION_INDEX}.gitinfo ]; then
 					PKG_GIT_BRANCH="$(cat ${SOURCES_DIR}/url/${i}.${VERSION_INDEX}.gitinfo | awk -F'|' '{ print $1 }')"
 					PKG_GIT_COMMIT="$(cat ${SOURCES_DIR}/url/${i}.${VERSION_INDEX}.gitinfo | awk -F'|' '{ print $2 }')"
 					PKG_GIT_SUBMODULE="$(cat ${SOURCES_DIR}/url/${i}.${VERSION_INDEX}.gitinfo | awk -F'|' '{ print $3 }')"
+					PKG_GIT_UPDATE_MODE="$(cat ${SOURCES_DIR}/url/${i}.${VERSION_INDEX}.gitinfo | awk -F'|' '{ print $4 }')"
+					PKG_GIT_FORMAT="$(cat ${SOURCES_DIR}/url/${i}.${VERSION_INDEX}.gitinfo | awk -F'|' '{ print $5 }')"
 				else
 					PKG_GIT_BRANCH=""
 					PKG_GIT_COMMIT=""
 					PKG_GIT_SUBMODULE="0"
+					PKG_GIT_UPDATE_MODE="手工"
+					PKG_GIT_FORMAT="source"
 				fi
 			fi
+			if [ "x${PKG_GIT_UPDATE_MODE}" == "x" ]; then
+				PKG_GIT_UPDATE_MODE="手工"
+			fi
+
 			if ( [ "x${FORCE_DOWN}" == "xFALSE" ] || [ "x$(eval echo \${FORCE_$(echo ${PKG_NAME}_${PKG_VERSION} | sed -e "s@-@_@g" -e "s@\.@_@g" )_git})" == "x1" ] ) && [ -f ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz ] && [ -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash ]; then
-				echo "$i 所需源码包已下载。"
+#  				echo "${BASE_DIR}/tools/git_test.sh ${WORLD_PARM} -d \"${NEW_BASE_DIR}/downloads/sources/files/\" \"${PKG_NAME}\" \"${PKG_VERSION}\" \"${URL}\" \"${PKG_GIT_BRANCH}\" \"${PKG_GIT_COMMIT}\" \"${PKG_GIT_UPDATE_MODE}\""
+#  				echo "${BASE_DIR}/tools/git_test.sh ${WORLD_PARM} -d \"${NEW_BASE_DIR}/downloads/sources/files/\" \"${PKG_NAME}\" \"${PKG_VERSION}\" \"${URL}\" \"${PKG_GIT_BRANCH}|${PKG_GIT_COMMIT}|${PKG_GIT_UPDATE_MODE}|${PKG_GIT_SUBMODULE}|${PKG_GIT_FORMAT}\""
+				if [ "x$(${BASE_DIR}/tools/git_test.sh ${WORLD_PARM} -d "${NEW_BASE_DIR}/downloads/sources/files/" "${PKG_NAME}" "${PKG_VERSION}" "${URL}" "${PKG_GIT_BRANCH}|${PKG_GIT_COMMIT}|${PKG_GIT_UPDATE_MODE}|${PKG_GIT_SUBMODULE}|${PKG_GIT_FORMAT}")" == "x1" ]; then
+					echo "删除之前克隆的仓库文件，以便进行新的克隆..."
+					if [ -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash ]; then
+						rm -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash
+					fi
+					if [ -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash ]; then
+						rm -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash
+					fi
+					if [ -f ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz ]; then
+						rm -f ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz
+					fi
+					if [ -d ${NEW_BASE_DIR}/downloads/sources/git/${PKG_NAME}-${PKG_VERSION}_git ]; then
+						rm -rf ${NEW_BASE_DIR}/downloads/sources/git/${PKG_NAME}-${PKG_VERSION}_git/
+					fi
+					if [ -d ${NEW_BASE_DIR}/downloads/sources/resource_git/${PKG_NAME}/${PKG_NAME}-${PKG_VERSION}_git ]; then
+						rm -rf ${NEW_BASE_DIR}/downloads/sources/resource_git/${PKG_NAME}/${PKG_NAME}-${PKG_VERSION}_git
+					fi
+					if [ "x${PKG_GIT_UPDATE_MODE}" == "x手工" ]; then
+						echo "发现 $i 所需源码包可能存在变更git仓库信息的内容，需要重新克隆到 ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz ..."
+					else
+						echo "根据设置，发现 $i 所需源码包已经满足 ${PKG_GIT_UPDATE_MODE} 的更新要求，需要重新克隆到 ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz ..."
+					fi
+					${BASE_DIR}/tools/git_clone.sh ${WORLD_PARM} -d "${NEW_BASE_DIR}/downloads/sources/files/" "${PKG_NAME}" "${PKG_VERSION}" "${URL}" "${PKG_GIT_BRANCH}" "${PKG_GIT_COMMIT}" "${PKG_GIT_SUBMODULE}" "${PKG_GIT_FORMAT}"
+					if [ "x$?" != "x0" ]; then
+						echo "${URL} 克隆失败！"
+						echo "克隆 ${URL} 失败！" >> ${NEW_BASE_DIR}/logs/download_fail.log
+						((FAIL_COUNT++))
+						continue;
+					fi
+					if [ -f ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz ]; then
+						echo "创建md5sum校验文件... ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash"
+						md5sum ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz | awk -F' ' '{print $1}' > ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash
+						echo "创建git信息校验文件... ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash"
+						echo -n "${PKG_GIT_BRANCH}|${PKG_GIT_COMMIT}|${PKG_GIT_UPDATE_MODE}|${PKG_GIT_SUBMODULE}|${PKG_GIT_FORMAT}" | md5sum | cut -d ' ' -f 1 > ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash
+						eval FORCE_$(echo ${PKG_NAME}_${PKG_VERSION} | sed -e "s@-@_@g" -e "s@\.@_@g" )_git=1
+					else
+						echo "${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz 文件未找到，请检查！"
+						echo "${i} 步骤中克隆 ${URL} 的打包文件 ${NEW_BASE_DIR}/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz 未找到！" >> ${NEW_BASE_DIR}/logs/download_fail.log
+						((FAIL_COUNT++))
+						continue;
+					fi
+				else
+					echo "$i 所需源码包已下载。"
+				fi
 			else
+				echo "删除之前克隆的仓库文件，以便进行新的克隆..."
+				if [ -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash ]; then
+					rm -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash
+				fi
 				if [ -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash ]; then
 					rm -f ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash
 				fi
@@ -282,8 +342,8 @@ do
 					rm -rf ${NEW_BASE_DIR}/downloads/sources/resource_git/${PKG_NAME}/${PKG_NAME}-${PKG_VERSION}_git
 				fi
 				echo "克隆：$i 所需源码包到 ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz ..."
-				echo ${BASE_DIR}/tools/git_clone.sh ${WORLD_PARM} -d "${NEW_BASE_DIR}/downloads/sources/files/" "${PKG_NAME}" "${PKG_VERSION}" "${URL}" "${PKG_GIT_BRANCH}" "${PKG_GIT_COMMIT}"
-				${BASE_DIR}/tools/git_clone.sh ${WORLD_PARM} -d "${NEW_BASE_DIR}/downloads/sources/files/" "${PKG_NAME}" "${PKG_VERSION}" "${URL}" "${PKG_GIT_BRANCH}" "${PKG_GIT_COMMIT}" "${PKG_GIT_SUBMODULE}"
+				echo ${BASE_DIR}/tools/git_clone.sh ${WORLD_PARM} -d "${NEW_BASE_DIR}/downloads/sources/files/" "${PKG_NAME}" "${PKG_VERSION}" "${URL}" "${PKG_GIT_BRANCH}" "${PKG_GIT_COMMIT}" "${PKG_GIT_SUBMODULE}" "${PKG_GIT_FORMAT}"
+				${BASE_DIR}/tools/git_clone.sh ${WORLD_PARM} -d "${NEW_BASE_DIR}/downloads/sources/files/" "${PKG_NAME}" "${PKG_VERSION}" "${URL}" "${PKG_GIT_BRANCH}" "${PKG_GIT_COMMIT}" "${PKG_GIT_SUBMODULE}" "${PKG_GIT_FORMAT}"
 				if [ "x$?" != "x0" ]; then
 					echo "${URL} 克隆失败！"
 					echo "克隆 ${URL} 失败！" >> ${NEW_BASE_DIR}/logs/download_fail.log
@@ -291,7 +351,10 @@ do
 					continue;
 				fi
 				if [ -f ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz ]; then
+					echo "创建md5sum校验文件... ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash"
 					md5sum ${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz | awk -F' ' '{print $1}' > ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}_git.tar.gz.hash
+					echo "创建git信息校验文件... ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash"
+					echo -n "${PKG_GIT_BRANCH}|${PKG_GIT_COMMIT}|${PKG_GIT_UPDATE_MODE}|${PKG_GIT_SUBMODULE}|${PKG_GIT_FORMAT}" | md5sum | cut -d ' ' -f 1 > ${NEW_BASE_DIR}/downloads/sources/hash/${PKG_NAME}-${PKG_VERSION}.gitinfo.hash
 					eval FORCE_$(echo ${PKG_NAME}_${PKG_VERSION} | sed -e "s@-@_@g" -e "s@\.@_@g" )_git=1
 				else
 					echo "${NEW_BASE_DIR}/downloads/sources/files/${PKG_NAME}-${PKG_VERSION}_git.tar.gz 文件未找到，请检查！"
