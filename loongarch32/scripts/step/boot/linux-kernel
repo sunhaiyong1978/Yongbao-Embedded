@@ -9,7 +9,8 @@ rm -rf ${BUILD_DIRECTORY}/linux-32bit-test_git
 tar xvf ${DOWNLOADDIR}/linux-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/linux-32bit-test_git
 	CONFIG_STR=$(get_user_set_env config "default")
-	
+	patch -Np1 -i ${SYSDIR}/files/boot/linux-kernel/32bit-test/patches/temp-fix.patch 
+	 
 	make mrproper
 	cp -af ${RESOURCEDIR}/linux-config-6.x_${CONFIG_STR} ./.config
 	sed -i "/^CONFIG_LOCALVERSION/s@=\"\(.*\)\"@=\"_${CONFIG_STR}\"@g" .config

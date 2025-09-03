@@ -214,4 +214,7 @@
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
 %step/boot/linux-kernel|
+%step/boot/initramfs-for-squashfs|none_status
+%step/boot/bootimage-squashfs|none_status
+%step/boot/dist_boot|
 %step/sysroot/create_base_files|
