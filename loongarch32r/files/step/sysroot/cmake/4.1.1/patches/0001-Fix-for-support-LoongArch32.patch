@@ -1,0 +1,27 @@
+From 9f637f95b9e07b6028e7386cbdf3b5ed2614cf74 Mon Sep 17 00:00:00 2001
+From: Sun Haiyong <sunhaiyong@zdbr.net>
+Date: Fri, 24 Jan 2025 06:53:01 +0000
+Subject: [PATCH] Fix for support LoongArch32.
+
+---
+ Utilities/KWIML/include/kwiml/abi.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Utilities/KWIML/include/kwiml/abi.h b/Utilities/KWIML/include/kwiml/abi.h
+index cefe9ce2..ad84ab98 100644
+--- a/Utilities/KWIML/include/kwiml/abi.h
++++ b/Utilities/KWIML/include/kwiml/abi.h
+@@ -409,8 +409,8 @@ suppression macro KWIML_ABI_NO_VERIFY was defined.
+ #elif defined(__hppa) || defined(__hppa__)
+ # define KWIML_ABI_ENDIAN_ID KWIML_ABI_ENDIAN_ID_BIG
+ 
+-/* LoongArch64 */
+-#elif defined(__loongarch64)
++/* LoongArch */
++#elif defined(__loongarch__)
+ # define KWIML_ABI_ENDIAN_ID KWIML_ABI_ENDIAN_ID_LITTLE
+ 
+ /* Motorola 68k */
+-- 
+2.31.1
+

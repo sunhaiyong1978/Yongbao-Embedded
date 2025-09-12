@@ -1,0 +1,23 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=glibc_localedata
+export PACKAGE_VERSION=32bit-test
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/glibc_localedata/32bit-test/
+rm -rf ${BUILD_DIRECTORY}/glibc-32bit-test_git
+tar xvf ${DOWNLOADDIR}/glibc-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/glibc-32bit-test_git
+	patch -Np1 -i ${SYSDIR}/files/sysroot/glibc_localedata/32bit-test/patches/0001-glibc-add-C.UTF-8-to-localedata.patch 
+	 
+        mkdir -p build-locale
+        pushd build-locale
+		export CFLAGS=""
+		export LDFLAGS=""
+                ../configure --prefix=/usr --libdir=/usr/lib${LIB_SUFF} --libexecdir=/usr/lib${LIB_SUFF}/glibc \
+                         --enable-stack-protector=strong --enable-add-ons \
+                         --disable-werror libc_cv_slibdir=/usr/lib${LIB_SUFF}
+                make -j${JOBS}
+                make -j${JOBS} DESTDIR=${SYSROOT_DIR} localedata/install-locales
+popd 
+rm -rf ${BUILD_DIRECTORY}/glibc-32bit-test_git

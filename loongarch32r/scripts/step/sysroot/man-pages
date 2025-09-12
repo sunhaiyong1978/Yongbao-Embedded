@@ -1,0 +1,13 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=man-pages
+export PACKAGE_VERSION=6.15
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/man-pages/6.15/
+rm -rf ${BUILD_DIRECTORY}/man-pages-6.15
+tar xvf ${DOWNLOADDIR}/man-pages-6.15.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/man-pages-6.15
+	make -R prefix=${PREFIX} DESTDIR=${SYSROOT_DIR} install
+popd 
+rm -rf ${BUILD_DIRECTORY}/man-pages-6.15

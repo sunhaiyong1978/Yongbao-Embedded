@@ -1,0 +1,25 @@
+From c6ee954b63280906a864f971edbe7f8864075edd Mon Sep 17 00:00:00 2001
+From: mqg <mqg@e.com>
+Date: Mon, 11 Aug 2025 16:24:23 +0800
+Subject: [PATCH] Support host loongarch32-unknown-linux-gnusf
+
+---
+ configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure b/configure
+index 488d93f..4545873 100755
+--- a/configure
++++ b/configure
+@@ -10418,7 +10418,7 @@ case "$host_os" in
+ 	cf_xopen_source="-D_SGI_SOURCE"
+ 	cf_XOPEN_SOURCE=
+ 	;;
+-(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
++(linux*gnu*|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
+ 
+ cf_gnu_xopen_source=$cf_XOPEN_SOURCE
+ 
+-- 
+2.34.1
+

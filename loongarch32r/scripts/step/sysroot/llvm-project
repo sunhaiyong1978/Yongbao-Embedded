@@ -1,0 +1,51 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=llvm-project
+export PACKAGE_VERSION=32bit
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/llvm-project/32bit/
+rm -rf ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
+tar xvf ${DOWNLOADDIR}/llvm-project_git-32bit_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
+    patch -Np1 -i ${SYSDIR}/files/sysroot/llvm-project/32bit/patches/0001-clang-add-loongarch32-abi-ilp32s-and-ilp32f.patch 
+	 
+    pushd llvm
+    mkdir cross-build
+    pushd cross-build
+	export CC="${CROSS_TARGET}-gcc" CXX="${CROSS_TARGET}-g++"
+        cmake .. -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+              -DBUILD_SHARED_LIBS:BOOL=OFF -DLLVM_ENABLE_LIBCXX:BOOL=OFF \
+              -DLLVM_LIBDIR_SUFFIX=${LIB_SUFF} \
+              -DCMAKE_C_FLAGS="-DNDEBUG" -DCMAKE_CXX_FLAGS="-DNDEBUG" \
+              -DLLVM_BUILD_RUNTIME:BOOL=ON -DLLVM_ENABLE_RTTI:BOOL=ON \
+              -DLLVM_ENABLE_ZLIB:BOOL=ON -DLLVM_ENABLE_FFI:BOOL=ON \
+              -DLLVM_ENABLE_TERMINFO:BOOL=OFF \
+              -DLLVM_TABLEGEN:PATH=${CROSSTOOLS_DIR}/bin/llvm-tblgen \
+	      -DCLANG_TABLEGEN:PATH=${CROSSTOOLS_DIR}/bin/clang-tblgen \
+              -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+              -DLLVM_LINK_LLVM_DYLIB:BOOL=ON -DLLVM_BUILD_EXTERNAL_COMPILER_RT:BOOL=ON \
+              -DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF \
+	      -DLLVM_VERSION_SUFFIX='' \
+	      -DLLVM_ENABLE_PROJECTS='llvm;clang;clang-tools-extra;lld;mlir;polly' \
+	      -DCLANG_DEFAULT_LINKER=lld \
+	      -DLLVM_HOST_TRIPLE=${CROSS_TARGET} \
+              -DLLVM_DEFAULT_TARGET_TRIPLE=${CROSS_TARGET}
+        
+	for program_name in clang-ast-dump lldb-tblgen mlir-tblgen clang-tidy-confusable-chars-gen clang-pseudo-gen mlir-linalg-ods-yaml-gen mlir-pdll mlir-src-sharder mlir-irdl-to-cpp
+	do
+		sed -i "s@${PWD}/bin/${program_name}@qemu-${ARCH_NAME} ${PWD}/bin/${program_name}@g" build.ninja
+	done
+	eval ${NINJA_AND_INSTALL}
+    popd
+    popd
+
+cat > ${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config << EOF
+#!/bin/bash -e
+qemu-${QEMU_NAME} ${SYSROOT_DIR}/usr/bin/llvm-config "\$@"
+EOF
+chmod +x ${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-llvm-config
+
+
+popd 
+rm -rf ${BUILD_DIRECTORY}/llvm-project_git-32bit_git

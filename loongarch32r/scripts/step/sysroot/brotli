@@ -1,0 +1,34 @@
+source env/sysroot/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=sysroot
+export STEP_PACKAGENAME=brotli
+export PACKAGE_VERSION=1.1.0
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/brotli/1.1.0/
+rm -rf ${BUILD_DIRECTORY}/brotli-1.1.0
+tar xvf ${DOWNLOADDIR}/brotli-1.1.0.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/brotli-1.1.0
+        
+	mkdir cross-build
+	pushd cross-build
+        	CC="${CROSS_TARGET}-gcc" CXX="${CROSS_TARGET}-g++"  \
+		cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${COMMON_DIR}/cmake-cross.cmake \
+	              -DPKG_CONFIG_EXECUTABLE=${SYSDIR}/cross-tools/bin/${CROSS_TARGET}-pkg-config \
+	              -DGETTEXT_MSGFMT_EXECUTABLE=/bin/msgfmt \
+        	      -DGETTEXT_MSGMERGE_EXECUTABLE=/bin/msgmerge \
+		      -DPython_EXECUTABLE=${CROSSTOOLS_DIR}/bin/python3 \
+		      -DPYTHON_EXECUTABLE=${CROSSTOOLS_DIR}/bin/python3 \
+		      -DPYTHON3_EXECUTABLE=${CROSSTOOLS_DIR}/bin/python3 \
+	              -DPERL_EXECUTABLE=${SYSDIR}/cross-tools/bin/${CROSS_TARGET}-perl \
+        	      -DRuby_EXECUTABLE=${SYSDIR}/cross-tools/bin/ruby \
+	              -DGPERF_EXECUTABLE=/bin/gperf \
+		      -DDOXYGEN_EXECUTABLE=/bin/doxygen \
+		      -DCMAKE_INSTALL_LIBDIR=/usr/lib${LIB_SUFF} -DLIB_SUFFIX=${LIB_SUFF} \
+       		      -DCMAKE_INSTALL_PREFIX=/usr \
+		      -DBUILD_SHARED_LIBS=ON \
+		       -Wno-dev ..
+		eval ${MAKE_AND_INSTALL}
+	popd
+        rm -f ${SYSROOT_DIR}/usr/lib${LIB_SUFF}/*.la
+popd 
+rm -rf ${BUILD_DIRECTORY}/brotli-1.1.0

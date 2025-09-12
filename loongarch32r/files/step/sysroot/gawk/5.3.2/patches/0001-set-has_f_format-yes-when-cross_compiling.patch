@@ -1,0 +1,25 @@
+From 60bea251716b88487f323a1a872356ecce873283 Mon Sep 17 00:00:00 2001
+From: mengqinggang <mengqinggang@loongson.cn>
+Date: Thu, 26 Jun 2025 17:53:02 +0800
+Subject: [PATCH] set has_f_format=yes when cross_compiling
+
+---
+ configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure b/configure
+index 005c6bf0..7f1e99f5 100755
+--- a/configure
++++ b/configure
+@@ -12285,7 +12285,7 @@ esac
+ printf %s "checking for printf %F format... " >&6; }
+ if test "$cross_compiling" = yes
+ then :
+-  has_f_format=no
++  has_f_format=yes
+ else $as_nop
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+-- 
+2.34.1
+
