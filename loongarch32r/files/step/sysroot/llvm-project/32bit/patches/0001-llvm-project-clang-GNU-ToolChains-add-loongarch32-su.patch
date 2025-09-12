@@ -1,0 +1,68 @@
+From fc1e22b95165d9dae1c6ca426a66768e2212cab3 Mon Sep 17 00:00:00 2001
+From: Sun Haiyong <sunhaiyong@zdbr.net>
+Date: Fri, 12 Sep 2025 06:25:01 +0000
+Subject: [PATCH] llvm-project clang GNU ToolChains add loongarch32 support.
+
+---
+ clang/lib/Driver/ToolChains/Gnu.cpp   | 16 ++++++++++++++--
+ clang/lib/Driver/ToolChains/Linux.cpp |  3 ++-
+ 2 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/clang/lib/Driver/ToolChains/Gnu.cpp b/clang/lib/Driver/ToolChains/Gnu.cpp
+index 3dade2bd..69dc8804 100644
+--- a/clang/lib/Driver/ToolChains/Gnu.cpp
++++ b/clang/lib/Driver/ToolChains/Gnu.cpp
+@@ -751,7 +751,12 @@ void tools::gnutools::Assembler::ConstructJob(Compilation &C,
+ 
+     break;
+   }
+-  // TODO: handle loongarch32.
++  case llvm::Triple::loongarch32: {
++    StringRef ABIName =
++        loongarch::getLoongArchABI(D, Args, getToolChain().getTriple());
++    CmdArgs.push_back(Args.MakeArgString("-mabi=" + ABIName));
++    break;
++  }
+   case llvm::Triple::loongarch64: {
+     StringRef ABIName =
+         loongarch::getLoongArchABI(D, Args, getToolChain().getTriple());
+@@ -2370,6 +2375,10 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
+       "i586-suse-linux",     "i686-montavista-linux",
+   };
+ 
++  static const char *const LoongArch32LibDirs[] = {"/lib32", "/lib"};
++  static const char *const LoongArch32Triples[] = {
++      "loongarch32-linux-gnu", "loongarch32-unknown-linux-gnu"};
++
+   static const char *const LoongArch64LibDirs[] = {"/lib64", "/lib"};
+   static const char *const LoongArch64Triples[] = {
+       "loongarch64-linux-gnu", "loongarch64-unknown-linux-gnu"};
+@@ -2632,7 +2641,10 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
+       BiarchTripleAliases.append(begin(X32Triples), end(X32Triples));
+     }
+     break;
+-  // TODO: Handle loongarch32.
++  case llvm::Triple::loongarch32:
++    LibDirs.append(begin(LoongArch32LibDirs), end(LoongArch32LibDirs));
++    TripleAliases.append(begin(LoongArch32Triples), end(LoongArch32Triples));
++    break;
+   case llvm::Triple::loongarch64:
+     LibDirs.append(begin(LoongArch64LibDirs), end(LoongArch64LibDirs));
+     TripleAliases.append(begin(LoongArch64Triples), end(LoongArch64Triples));
+diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
+index 16e35b08..aefd2e92 100644
+--- a/clang/lib/Driver/ToolChains/Linux.cpp
++++ b/clang/lib/Driver/ToolChains/Linux.cpp
+@@ -203,7 +203,8 @@ static StringRef getOSLibDir(const llvm::Triple &Triple, const ArgList &Args) {
+   if (Triple.getArch() == llvm::Triple::x86_64 && Triple.isX32())
+     return "libx32";
+ 
+-  if (Triple.getArch() == llvm::Triple::riscv32)
++  if (Triple.getArch() == llvm::Triple::riscv32 ||
++      Triple.getArch() == llvm::Triple::loongarch32)
+     return "lib32";
+ 
+   return Triple.isArch32Bit() ? "lib" : "lib64";
+-- 
+2.31.1
+
