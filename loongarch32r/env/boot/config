@@ -9,6 +9,7 @@ export TOOLCHAIN_DIRECTORY="${SYSDIR}/toolchains"
 export CROSS_HOST="$(echo $MACHTYPE | sed "s/$(echo $MACHTYPE | cut -d- -f2)/cross/")"
 export HOST_ARCH_NAME="$(echo $MACHTYPE | cut -d- -f1)"
 export CROSSTOOLS_DIR="${SYSDIR}/cross-tools"
+export HOST_TOOLS_DIR="${SYSDIR}/host-tools"
 export JOBS=$[ ( $(LC_ALL=C free -g | grep "^Mem:" | awk -F' ' '{ print $2 }') / 4 ) + 1 ]
 export PATH=${CROSSTOOLS_DIR}/bin:/usr/bin:/bin
 export CROSS_TARGET="loongarch32-unknown-linux-gnusf"
