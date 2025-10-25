@@ -25,5 +25,12 @@ pushd ${BUILD_DIRECTORY}/glibc-32bit-test_git
 		make -j${JOBS}
 		make DESTDIR=${SYSROOT_DIR} install
     popd
+
+     if [ "${LIB_SUFF}" != "32" ]; then
+	LD_FILE_NAME=$(basename $(find ${SYSROOT_DIR}/usr/lib${LIB_SUFF} -name "ld-*.so.*"))
+	if [ "${LD_FILE_NAME}" != "" ]; then
+		ln -sfv ../lib${LIB_SUFF}/${LD_FILE_NAME} ${SYSROOT_DIR}/usr/lib32/${LD_FILE_NAME}
+	fi
+     fi
 popd 
 rm -rf ${BUILD_DIRECTORY}/glibc-32bit-test_git

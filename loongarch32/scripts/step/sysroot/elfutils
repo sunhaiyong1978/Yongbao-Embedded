@@ -18,6 +18,7 @@ pushd ${BUILD_DIRECTORY}/elfutils-0.193
 
 	sed -i.orig "s@GENDIS_ENV) \./i386_gendis@GENDIS_ENV) qemu-${QEMU_TARGET_ARCH} \./i386_gendis@g" libcpu/Makefile.am
 
+	CFLAGS="${CLFAGS} -Wno-error=unused-but-set-variable" \
 	./configure ${COMMON_CONFIG} --disable-debuginfod --enable-libdebuginfod=dummy --enable-maintainer-mode \
 				ac_cv_null_dereference=no
 	eval ${MAKE_AND_INSTALL}

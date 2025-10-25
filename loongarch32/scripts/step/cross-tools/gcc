@@ -20,6 +20,7 @@ pushd ${BUILD_DIRECTORY}/gcc_git-32bit-test_git
 		             --enable-__cxa_atexit --enable-threads=posix --with-system-zlib \
 		             --enable-libstdcxx-time --enable-checking=release --disable-multilib \
 			     --enable-linker-build-id --with-linker-hash-style=gnu --enable-gnu-unique-object --enable-initfini-array --enable-gnu-indirect-function \
+			     --with-arch=${TARGET_WITH_ARCH} \
 		             --enable-languages=c,c++,fortran,objc,obj-c++,lto
 		make -j${JOBS}
 		make install-strip

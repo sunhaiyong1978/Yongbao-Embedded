@@ -1,0 +1,128 @@
+From beccf45a42d194ceadde6cc6d7425004dc62a273 Mon Sep 17 00:00:00 2001
+From: Sun Haiyong <sunhaiyong@zdbr.net>
+Date: Sat, 27 Sep 2025 13:02:35 +0000
+Subject: [PATCH] systemd 258 add loongarch32 support.
+
+---
+ src/basic/architecture.c                      |   4 +
+ src/basic/architecture.h                      |   8 +
+ src/boot/meson.build                          |   1 +
+ src/include/override/sys/generate-syscall.py  |   2 +
+ src/include/override/sys/meson.build          |   1 +
+ src/vmspawn/vmspawn-util.c                    |   1 +
+ src/vmspawn/vmspawn-util.h                    |   2 +-
+ 7 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/src/basic/architecture.c b/src/basic/architecture.c
+index a711e8b..f8709ce 100644
+--- a/src/basic/architecture.c
++++ b/src/basic/architecture.c
+@@ -72,6 +72,9 @@ Architecture uname_architecture(void) {
+ #elif defined(__loongarch_lp64)
+                 { "loongarch64", ARCHITECTURE_LOONGARCH64 },
+ 
++#elif defined(__loongarch_ilp32)
++                { "loongarch32", ARCHITECTURE_LOONGARCH32 },
++
+ #elif defined(__m68k__)
+                 { "m68k",       ARCHITECTURE_M68K     },
+ 
+@@ -151,6 +154,7 @@ static const char *const architecture_table[_ARCHITECTURE_MAX] = {
+         [ARCHITECTURE_X86]         = "x86",
+         [ARCHITECTURE_IA64]        = "ia64",
+         [ARCHITECTURE_LOONGARCH64] = "loongarch64",
++        [ARCHITECTURE_LOONGARCH32] = "loongarch32",
+         [ARCHITECTURE_M68K]        = "m68k",
+         [ARCHITECTURE_MIPS64_LE]   = "mips64-le",
+         [ARCHITECTURE_MIPS64]      = "mips64",
+diff --git a/src/basic/architecture.h b/src/basic/architecture.h
+index 3793415..f888496 100644
+--- a/src/basic/architecture.h
++++ b/src/basic/architecture.h
+@@ -20,6 +20,7 @@ typedef enum {
+         ARCHITECTURE_CRIS,
+         ARCHITECTURE_IA64,
+         ARCHITECTURE_LOONGARCH64,
++        ARCHITECTURE_LOONGARCH32,
+         ARCHITECTURE_M68K,
+         ARCHITECTURE_MIPS,
+         ARCHITECTURE_MIPS64,
+@@ -208,6 +209,13 @@ Architecture uname_architecture(void);
+ #  else
+ #    error "Unrecognized loongarch architecture variant"
+ #  endif
++#elif defined(__loongarch_ilp32)
++#  define native_architecture() ARCHITECTURE_LOONGARCH32
++#  if defined(__loongarch_ilp32)
++#    define LIB_ARCH_TUPLE "loongarch32-linux-gnu"
++#  else
++#    error "Unrecognized loongarch architecture variant"
++#  endif
+ #elif defined(__m68k__)
+ #  define native_architecture() ARCHITECTURE_M68K
+ #  define LIB_ARCH_TUPLE "m68k-linux-gnu"
+diff --git a/src/boot/meson.build b/src/boot/meson.build
+index ba0b309..9444117 100644
+--- a/src/boot/meson.build
++++ b/src/boot/meson.build
+@@ -253,6 +253,7 @@ efi_arch_c_args = {
+         'arm'         : ['-mgeneral-regs-only'],
+         # Until -mgeneral-regs-only is supported in LoongArch, use the following option instead:
+         'loongarch64' : ['-mno-lsx', '-mno-lasx'],
++        'loongarch32' : ['-mno-lsx', '-mno-lasx'],
+         # Pass -m64/32 explicitly to make building on x32 work.
+         'x86_64'      : ['-m64', '-march=x86-64', '-mno-red-zone', '-mgeneral-regs-only'],
+         'x86'         : ['-m32', '-march=i686', '-mgeneral-regs-only', '-malign-double'],
+diff --git a/src/include/override/sys/generate-syscall.py b/src/include/override/sys/generate-syscall.py
+index e715bbb..f40603c 100755
+--- a/src/include/override/sys/generate-syscall.py
++++ b/src/include/override/sys/generate-syscall.py
+@@ -74,6 +74,8 @@ DEF_TEMPLATE_B = '''\
+ #    define systemd_NR_{syscall} {nr_ia64}
+ #  elif defined(__loongarch_lp64)
+ #    define systemd_NR_{syscall} {nr_loongarch64}
++#  elif defined(__loongarch_ilp32)
++#    define systemd_NR_{syscall} {nr_loongarch32}
+ #  elif defined(__m68k__)
+ #    define systemd_NR_{syscall} {nr_m68k}
+ #  elif defined(_MIPS_SIM)
+diff --git a/src/include/override/sys/meson.build b/src/include/override/sys/meson.build
+index ce55185..a8654ce 100644
+--- a/src/include/override/sys/meson.build
++++ b/src/include/override/sys/meson.build
+@@ -8,6 +8,7 @@ arch_list = [
+         'i386',
+         'ia64',
+         'loongarch64',
++        'loongarch32',
+         'm68k',
+         'mips64',
+         'mips64n32',
+diff --git a/src/vmspawn/vmspawn-util.c b/src/vmspawn/vmspawn-util.c
+index 3f65fab..7d9d103 100644
+--- a/src/vmspawn/vmspawn-util.c
++++ b/src/vmspawn/vmspawn-util.c
+@@ -31,6 +31,7 @@ static const char* const architecture_to_qemu_table[_ARCHITECTURE_MAX] = {
+         [ARCHITECTURE_X86_64]      = "x86_64",      /* differs from our name */
+         [ARCHITECTURE_X86]         = "i386",        /* differs from our name */
+         [ARCHITECTURE_LOONGARCH64] = "loongarch64",
++        [ARCHITECTURE_LOONGARCH32] = "loongarch32",
+         [ARCHITECTURE_MIPS64_LE]   = "mips",        /* differs from our name */
+         [ARCHITECTURE_MIPS_LE]     = "mips",        /* differs from our name */
+         [ARCHITECTURE_PARISC]      = "hppa",        /* differs from our name */
+diff --git a/src/vmspawn/vmspawn-util.h b/src/vmspawn/vmspawn-util.h
+index a1aa811..cd64708 100644
+--- a/src/vmspawn/vmspawn-util.h
++++ b/src/vmspawn/vmspawn-util.h
+@@ -35,7 +35,7 @@
+ 
+ #if defined(__x86_64__) || defined(__i386__)
+ #  define QEMU_MACHINE_TYPE "q35"
+-#elif defined(__arm__) || defined(__aarch64__) || defined(__riscv) || defined(__loongarch64) || defined(__m68k__)
++#elif defined(__arm__) || defined(__aarch64__) || defined(__riscv) || defined(__loongarch__) || defined(__m68k__)
+ #  define QEMU_MACHINE_TYPE "virt"
+ #elif defined(__s390__) || defined(__s390x__)
+ #  define QEMU_MACHINE_TYPE "s390-ccw-virtio"
+-- 
+2.31.1
+

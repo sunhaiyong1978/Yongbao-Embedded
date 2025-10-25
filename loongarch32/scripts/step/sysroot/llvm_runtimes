@@ -20,7 +20,7 @@ pushd ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
                   -DCMAKE_C_FLAGS="-DNDEBUG -target ${CROSS_TARGET}" \
 		  -DCMAKE_CXX_FLAGS="-DNDEBUG -target ${CROSS_TARGET}" \
 		  -DCMAKE_ASM_FLAGS="-target ${CROSS_TARGET}" \
-                  -DCMAKE_MAKE_PROGRAM:PATH=${HOST_TOOLS_DIR}/bin/ninja \
+                  -DCMAKE_MAKE_PROGRAM:PATH=/bin/ninja \
 		  -DPython3_EXECUTABLE=${CROSSTOOLS_DIR}/bin/${CROSS_TARGET}-python3 \
                   -DCMAKE_SYSROOT=${SYSROOT_DIR} \
                   -DCMAKE_FIND_ROOT_PATH=${SYSROOT_DIR}/usr \
