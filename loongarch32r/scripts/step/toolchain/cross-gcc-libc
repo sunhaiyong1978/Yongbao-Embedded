@@ -1,0 +1,107 @@
+source env/toolchain/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=toolchain
+export STEP_PACKAGENAME=cross-gcc-libc
+export PACKAGE_VERSION=32bit-test
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/toolchain/cross-gcc-libc/32bit-test/
+rm -rf ${BUILD_DIRECTORY}/gcc_git-32bit-test_git
+tar xvf ${DOWNLOADDIR}/gcc_git-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/gcc_git-32bit-test_git
+    HOST_HOST=$(archname_to_triple "$(get_user_set_env host ${CROSS_HOST})" "${CROSS_HOST}")
+    HOST_TARGET=$(archname_to_triple "$(get_user_set_env target ${CROSS_TARGET})" "${CROSS_TARGET}")
+    ARCH_ABI=$(archname_to_archabi "$(get_user_set_env target ${HOST_TARGET})" "${ARCH_ABI}")
+    LIBRARY_SHARED=$(get_user_set_env shared "1")
+
+    TARGET_VENDOR=$(get_user_set_env vendor "unknown")
+
+
+    TARGET_ARCH_BIT=$(archname_to_archbit "${HOST_TARGET}" "")
+    LIB_SUFF=$(archbit_to_lib_suff "${TARGET_ARCH_BIT}")
+
+    
+
+    if [ "x$(get_user_set_env compat)" == "x1" ]; then
+	COMPAT_HOST="$(echo "${HOST_HOST}" | sed "s@unknown@compat@g")"
+    else
+	COMPAT_HOST="${HOST_HOST}"
+    fi
+
+    if [ "x$(get_user_set_env target_compat)" == "x1" ]; then
+	COMPAT_TARGET="$(echo "${HOST_TARGET}" | sed "s@unknown@compat@g")"
+    else
+	case "x${TARGET_VENDOR}" in
+		"xunknown")
+			;;
+		"xNULL")
+			HOST_TARGET="$(echo "${HOST_TARGET}" | sed "s@-unknown-@-@g")"
+			;;
+		*)
+			HOST_TARGET="$(echo "${HOST_TARGET}" | sed "s@unknown@${TARGET_VENDOR}@g")"
+			;;
+	esac
+	COMPAT_TARGET="${HOST_TARGET}"
+    fi
+
+    if [ "x${LIBRARY_SHARED}" == "x1" ]; then
+	STATIC_STR=""
+	TOOLCHAIN_INSTALL_DIR="${TOOLCHAIN_DIRECTORY}/${COMPAT_HOST}/${COMPAT_TARGET}"
+    else
+	STATIC_STR="-static"
+	TOOLCHAIN_INSTALL_DIR="${TOOLCHAIN_DIRECTORY}/${COMPAT_HOST}/${COMPAT_TARGET}/static"
+    fi
+
+    if [ "x${ARCH_ABI}" == "x32" ]; then
+	WITH_ABI=""
+    else
+	WITH_ABI="--with-abi=${ARCH_ABI}"
+    fi
+
+    PATH=${TOOLCHAIN_DIRECTORY}/cross-target/${COMPAT_HOST}/cross-tools/bin:${TOOLCHAIN_DIRECTORY}/cross-target/${COMPAT_TARGET}/cross-tools/bin:${PATH}
+
+    if [ -d ${PREFIX}/cross-tools ]; then
+        mv ${PREFIX}/cross-tools{,.$(date +%Y%m%d%H%M%S)}
+    fi
+    mkdir -pv ${PREFIX}/cross-tools
+    cp -a ${TOOLCHAIN_DIRECTORY}/cross-target/${COMPAT_TARGET}/cross-tools/target ${PREFIX}/cross-tools/
+
+    sed -i 's@\./fixinc\.sh@-c true@' gcc/Makefile.in
+    tar xvf $(ls ${DOWNLOADDIR}/gmp-*.tar.* | sort -V | tail -n1)
+    tar xvf $(ls ${DOWNLOADDIR}/mpfr-*.tar.* | sort -V | tail -n1)
+    tar xvf $(ls ${DOWNLOADDIR}/mpc-*.tar.* | sort -V | tail -n1)
+    mv gmp-* gmp
+    mv mpfr-* mpfr
+    mv mpc-* mpc
+    mkdir cross-build
+    pushd cross-build
+	LDFLAGS="${STATIC_STR}" \
+        ../configure --prefix=${CROSS_TOOLCHAIN_PREFIX}/cross-tools --build=${CROSS_HOST} --host=${COMPAT_HOST} \
+                     --target=${COMPAT_TARGET} \
+		     --libdir=${CROSS_TOOLCHAIN_PREFIX}/cross-tools/target/usr/lib${LIB_SUFF} \
+                     --enable-__cxa_atexit --enable-threads=posix \
+                     --enable-libstdcxx-time \
+                     --enable-checking=release \
+                     --with-sysroot=${CROSS_TOOLCHAIN_PREFIX}/cross-tools/target \
+                     --with-build-sysroot=${PREFIX}/cross-tools/target \
+		     --disable-multilib --enable-linker-build-id \
+		     --with-gxx-include-dir=${CROSS_TOOLCHAIN_PREFIX}/cross-tools/target/usr/lib/gcc/${COMPAT_TARGET}/${PACKAGE_VERSION}/include/c++ \
+ 		     --with-toolexeclibdir=${CROSS_TOOLCHAIN_PREFIX}/cross-tools/target/usr/lib${LIB_SUFF} \
+		     --with-static-standard-libraries --disable-shared \
+                     ${WITH_ABI} \
+                     --enable-languages=c,c++,fortran,objc,obj-c++,lto
+        make -j${JOBS}
+
+	if [ -d ${TOOLCHAIN_INSTALL_DIR}/gcc ]; then
+		mv ${TOOLCHAIN_INSTALL_DIR}/gcc{,.$(date +%Y%m%d%H%M%S)}
+	fi
+        make DESTDIR=${TOOLCHAIN_INSTALL_DIR}/gcc install-strip
+	if [ -f ${TOOLCHAIN_INSTALL_DIR}/gcc/${CROSS_TOOLCHAIN_PREFIX}/cross-tools/bin/${COMPAT_TARGET}-gcc ]; then
+		ln -sf ${COMPAT_TARGET}-gcc ${TOOLCHAIN_INSTALL_DIR}/gcc/${CROSS_TOOLCHAIN_PREFIX}/cross-tools/bin/${COMPAT_TARGET}-cc
+	fi
+	if [ -f ${TOOLCHAIN_INSTALL_DIR}/gcc/${CROSS_TOOLCHAIN_PREFIX}/cross-tools/bin/${COMPAT_TARGET}-gcc.exe ]; then
+		ln -sf ${COMPAT_TARGET}-gcc.exe ${TOOLCHAIN_INSTALL_DIR}/gcc/${CROSS_TOOLCHAIN_PREFIX}/cross-tools/bin/${COMPAT_TARGET}-cc.exe
+	fi
+	rm -fv $(dirname $(realpath $(${TOOLCHAIN_INSTALL_DIR}/gcc/${CROSS_TOOLCHAIN_PREFIX}/cross-tools/bin/${COMPAT_TARGET}-gcc -print-file-name=libssp.a)))/libssp*
+    popd
+popd 
+rm -rf ${BUILD_DIRECTORY}/gcc_git-32bit-test_git

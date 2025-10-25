@@ -1,0 +1,70 @@
+source env/toolchain/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=toolchain
+export STEP_PACKAGENAME=cross-binutils
+export PACKAGE_VERSION=32bit-test
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/toolchain/cross-binutils/32bit-test/
+rm -rf ${BUILD_DIRECTORY}/binutils_git-32bit-test_git
+tar xvf ${DOWNLOADDIR}/binutils_git-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/binutils_git-32bit-test_git
+    HOST_HOST=$(archname_to_triple "$(get_user_set_env host ${CROSS_HOST})" "${CROSS_HOST}")
+    HOST_TARGET=$(archname_to_triple "$(get_user_set_env target ${CROSS_TARGET})" "${CROSS_TARGET}")
+    ARCH_ABI=$(archname_to_archabi "$(get_user_set_env target ${CROSS_TARGET})" "${ARCH_ABI}")
+    LIBRARY_SHARED=$(get_user_set_env shared "1")
+
+    TARGET_VENDOR=$(get_user_set_env vendor "unknown")
+
+
+    
+
+    if [ "x$(get_user_set_env compat)" == "x1" ]; then
+	COMPAT_HOST="$(echo "${HOST_HOST}" | sed "s@unknown@compat@g")"
+    else
+	COMPAT_HOST="${HOST_HOST}"
+    fi
+
+    if [ "x$(get_user_set_env target_compat)" == "x1" ]; then
+	COMPAT_TARGET="$(echo "${HOST_TARGET}" | sed "s@unknown@compat@g")"
+    else
+	case "x${TARGET_VENDOR}" in
+		"xunknown")
+			;;
+		"xNULL")
+			HOST_TARGET="$(echo "${HOST_TARGET}" | sed "s@-unknown-@-@g")"
+			;;
+		*)
+			HOST_TARGET="$(echo "${HOST_TARGET}" | sed "s@unknown@${TARGET_VENDOR}@g")"
+			;;
+	esac
+	COMPAT_TARGET="${HOST_TARGET}"
+    fi
+
+    if [ "x${LIBRARY_SHARED}" == "x1" ]; then
+	STATIC_STR=""
+	TOOLCHAIN_INSTALL_DIR="${TOOLCHAIN_DIRECTORY}/${COMPAT_HOST}/${COMPAT_TARGET}"
+    else
+	STATIC_STR="--static"
+	TOOLCHAIN_INSTALL_DIR="${TOOLCHAIN_DIRECTORY}/${COMPAT_HOST}/${COMPAT_TARGET}/static"
+    fi
+
+
+    PATH=${TOOLCHAIN_DIRECTORY}/cross-target/${COMPAT_HOST}/cross-tools/bin:${TOOLCHAIN_DIRECTORY}/cross-target/${COMPAT_TARGET}/cross-tools/bin:${PATH}
+
+    rm -rf gdb* libdecnumber readline sim
+    mkdir cross-build
+    pushd cross-build
+	LDFLAGS="${STATIC_STR}" CFLAGS="${CFLAGS} -Wno-error=format-truncation -Wno-error=maybe-uninitialized" \
+        ../configure --prefix=${CROSS_TOOLCHAIN_PREFIX}/cross-tools --build=${CROSS_HOST} --host=${COMPAT_HOST} --target=${COMPAT_TARGET} \
+                     --with-sysroot=${CROSS_TOOLCHAIN_PREFIX}/cross-tools/target --enable-nls \
+                     --enable-64-bit-bfd --disable-shared --disable-gprofng
+        make -j${JOBS} configure-host LIBS="${LIBS} -lzstd -lpthread"
+        make -j${JOBS}
+
+	if [ -d ${TOOLCHAIN_INSTALL_DIR}/binutils ]; then
+		mv ${TOOLCHAIN_INSTALL_DIR}/binutils{,.$(date +%Y%m%d%H%M%S)}
+	fi
+        make DESTDIR=${TOOLCHAIN_INSTALL_DIR}/binutils install-strip
+    popd
+popd 
+rm -rf ${BUILD_DIRECTORY}/binutils_git-32bit-test_git

@@ -21,6 +21,7 @@ pushd ${BUILD_DIRECTORY}/gcc_git-32bit-test_git
 		             --disable-decimal-float --disable-libgomp --disable-libitm \
 		             --disable-libsanitizer --disable-libquadmath --disable-threads \
 		             --disable-target-zlib --with-system-zlib --enable-checking=release \
+			     --disable-multilib --disable-libatomic \
 			     --with-arch=${TARGET_WITH_ARCH} \
 		             --enable-languages=c
 		make -j${JOBS} all-gcc all-target-libgcc

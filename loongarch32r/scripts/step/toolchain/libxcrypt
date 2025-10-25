@@ -1,0 +1,52 @@
+source env/toolchain/config
+source env/distro.info
+source env/function.sh
+export STEP_BUILDNAME=toolchain
+export STEP_PACKAGENAME=libxcrypt
+export PACKAGE_VERSION=4.4.38
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/toolchain/libxcrypt/4.4.38/
+rm -rf ${BUILD_DIRECTORY}/libxcrypt-4.4.38
+tar xvf ${DOWNLOADDIR}/libxcrypt-4.4.38.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/libxcrypt-4.4.38
+    patch -Np1 -i ${SYSDIR}/files/toolchain/libxcrypt/4.4.38/patches/0001-fix-configure-error-under-loongarch32-architecture.patch 
+	 
+    if [ "x$(get_user_set_env target)" == "x" ]; then
+        CROSS_TARGET=$(archname_to_triple "$(get_user_set_env host ${CROSS_HOST})" "${CROSS_HOST}")
+    else
+        CROSS_TARGET=$(archname_to_triple "$(get_user_set_env target ${CROSS_HOST})" "${CROSS_HOST}")
+    fi
+    LIB_SUFF=$(archname_to_lib_suff "${CROSS_TARGET}")
+
+    TARGET_VENDOR=$(get_user_set_env vendor "unknown")
+
+    if [ "x$(get_user_set_env compat)" == "x1" ] || [ "x$(get_user_set_env target_compat)" == "x1" ]; then
+	COMPAT_TARGET="$(echo "${CROSS_TARGET}" | sed "s@unknown@compat@g")"
+    else
+	case "x${TARGET_VENDOR}" in
+		"xunknown")
+			COMPAT_TARGET="${CROSS_TARGET}"
+			;;
+		"xNULL")
+			COMPAT_TARGET="$(echo "${CROSS_TARGET}" | sed "s@-unknown-@-@g")"
+			;;
+		*)
+			COMPAT_TARGET="$(echo "${CROSS_TARGET}" | sed "s@unknown@${TARGET_VENDOR}@g")"
+			;;
+	esac
+    fi
+
+    INSTALL_DIST_DIR="${TOOLCHAIN_DIRECTORY}/cross-target/${COMPAT_TARGET}/cross-tools/target"
+
+    PATH=${TOOLCHAIN_DIRECTORY}/cross-target/${COMPAT_TARGET}/cross-tools/bin:${PATH}
+
+    if [ ! -f configure ]; then
+            autoreconf -ifv
+    fi
+
+    ./configure  --prefix=/usr --host=${COMPAT_TARGET} --build=${CROSS_HOST} \
+                 --libdir=/usr/lib${LIB_SUFF}  --disable-werror
+    make -j${JOBS}
+
+    make DESTDIR=${INSTALL_DIST_DIR} install
+popd 
+rm -rf ${BUILD_DIRECTORY}/libxcrypt-4.4.38
