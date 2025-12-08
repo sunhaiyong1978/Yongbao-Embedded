@@ -3,12 +3,12 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=Python
-export PACKAGE_VERSION=3.13.7
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/Python/3.13.7/
-rm -rf ${BUILD_DIRECTORY}/Python-3.13.7
-tar xvf ${DOWNLOADDIR}/Python-3.13.7.tar.xz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/Python-3.13.7
-	patch -Np1 -i ${SYSDIR}/files/sysroot/Python/3.13.7/patches/0001-Python-3.13.1-fix-for-cross-build.patch 
+export PACKAGE_VERSION=3.14.1
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/Python/3.14.1/
+rm -rf ${BUILD_DIRECTORY}/Python-3.14.1
+tar xvf ${DOWNLOADDIR}/Python-3.14.1.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/Python-3.14.1
+	patch -Np1 -i ${SYSDIR}/files/sysroot/Python/3.14.1/patches/0001-Python-3.13.1-fix-for-cross-build.patch 
 	 
 cat > config.cache << "EOF"
     ac_cv_aligned_required=no
@@ -69,4 +69,4 @@ sed -i -e "s@${SYSROOT_DIR}@@g" \
 
 
 popd 
-rm -rf ${BUILD_DIRECTORY}/Python-3.13.7
+rm -rf ${BUILD_DIRECTORY}/Python-3.14.1

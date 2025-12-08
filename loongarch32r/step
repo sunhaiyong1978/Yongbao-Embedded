@@ -20,8 +20,8 @@
 %step/cross-tools/URI|
 %step/cross-tools/Python3|
 %step/host-tools/setuptools_pre|
-%step/host-tools/pip|
 %step/host-tools/flit-core|
+%step/host-tools/pip|
 %step/host-tools/wheel|
 %step/host-tools/setuptools|
 %step/host-tools/meson|
@@ -37,6 +37,7 @@
 %step/host-tools/glib|
 %step/cross-tools/gobject-introspection|
 %step/cross-tools/vala|
+%step/host-tools/icu4c|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
@@ -216,7 +217,7 @@
 %step/sysroot/autogen|
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
-%step/boot/linux-kernel|
+%step/boot/linux-kernel|%config=la32r
 %step/boot/initramfs-for-squashfs|none_status
 %step/boot/bootimage-squashfs|none_status
 %step/boot/dist_boot|
