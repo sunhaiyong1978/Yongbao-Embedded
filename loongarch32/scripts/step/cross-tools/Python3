@@ -3,11 +3,11 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=cross-tools
 export STEP_PACKAGENAME=Python3
-export PACKAGE_VERSION=3.13.7
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/cross-tools/Python3/3.13.7/
-rm -rf ${BUILD_DIRECTORY}/Python-3.13.7
-tar xvf ${DOWNLOADDIR}/Python-3.13.7.tar.xz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/Python-3.13.7
+export PACKAGE_VERSION=3.14.1
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/cross-tools/Python3/3.14.1/
+rm -rf ${BUILD_DIRECTORY}/Python-3.14.1
+tar xvf ${DOWNLOADDIR}/Python-3.14.1.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/Python-3.14.1
 	CFLAGS="${CFLAGS} -fPIC"
 	./configure --prefix=${CROSSTOOLS_DIR} --with-platlibdir=lib${LIB_SUFF} \
 	            --disable-shared --with-system-expat --with-system-ffi \
@@ -21,4 +21,4 @@ pushd ${BUILD_DIRECTORY}/Python-3.13.7
 	sed -i "s@-lutil @@g" ${CROSSTOOLS_DIR}/bin/python$(get_package_version Python3)-config
 
 popd 
-rm -rf ${BUILD_DIRECTORY}/Python-3.13.7
+rm -rf ${BUILD_DIRECTORY}/Python-3.14.1
