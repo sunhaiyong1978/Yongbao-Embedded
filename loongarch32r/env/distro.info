@@ -1,4 +1,4 @@
-DISTRO_ARCH=loongarch32
+DISTRO_ARCH=loongarch32r
 DISTRO_ARCH_NAME=loongarch32
 DISTRO_ARCH_NAME_CN=32位龙架构
 DISTRO_NAME=Yongbao-Embedded
