@@ -65,7 +65,8 @@ fi
 SPLIT_DIR="${2}"
 
 echo "拆分 ${SPLIT_DIR} 目录..."
-echo "拆分 ${SPLIT_DIR} 目录..." > ${NEW_BASE_DIR}/logs/split_${SPLIT_STEP_NAME}.log
+mkdir -p ${NEW_TARGET_SYSDIR}/logs/split/
+echo "拆分 ${SPLIT_DIR} 目录..." > ${NEW_TARGET_SYSDIR}/logs/split/split_${SPLIT_STEP_NAME}.log
 
 if [ -d ${SPLIT_DIR} ]; then
 	if [ -f ${NEW_TARGET_SYSDIR}/overlaydir/${SPLIT_STEP_NAME}.split ]; then
@@ -97,5 +98,5 @@ if [ -d ${SPLIT_DIR} ]; then
 		echo "没有找到 ${NEW_TARGET_SYSDIR}/overlaydir/${SPLIT_STEP_NAME}.split 拆分文件，将使用默认的拆分方式。"
 	fi
 else
-	echo "没有找到 ${SPLIT_DIR} 目录，请检查是否制定了正确的路径。"
+	echo "没有找到 ${SPLIT_DIR} 目录，请检查是否指定了正确的路径。"
 fi
