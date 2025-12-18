@@ -37,7 +37,8 @@ fi
 
 if [ ! -d ${BASE_DIR}/Branch_${VERSION_NAME} ]; then
 	echo -n "创建 Branch_${VERSION_NAME} 目录..."
-	mkdir -p Branch_${VERSION_NAME}
+	mkdir -p Branch_${VERSION_NAME}/
+	mkdir -p Branch_${VERSION_NAME}/sync/
 	echo "完成。"
 	echo "为自建分支 Branch_${VERSION_NAME} 创建信息文件..."
 	if [ ! -f ${BASE_DIR}/Branch_${VERSION_NAME}/branch_message ]; then
@@ -45,9 +46,9 @@ if [ ! -d ${BASE_DIR}/Branch_${VERSION_NAME} ]; then
 		echo "自建分支 Branch_${VERSION_NAME}" > ${BASE_DIR}/Branch_${VERSION_NAME}/branch_message
 		echo "完成！"
 	fi
-	if [ ! -f ${BASE_DIR}/Branch_${VERSION_NAME}/branch_stamp ]; then
+	if [ ! -f ${BASE_DIR}/Branch_${VERSION_NAME}/sync/branch_stamp ]; then
 		echo -n "创建分支时间戳文件..."
-		echo "${DATE_SUFF}" > ${BASE_DIR}/Branch_${VERSION_NAME}/branch_stamp
+		echo "${DATE_SUFF}" > ${BASE_DIR}/Branch_${VERSION_NAME}/sync/branch_stamp
 		echo "完成！"
 	fi
 
@@ -84,15 +85,16 @@ if [ ! -d ${BASE_DIR}/Branch_${VERSION_NAME} ]; then
 	mkdir -p ${BASE_DIR}/Branch_${VERSION_NAME}/logs
 else
 	if [ "x${ADD_MISS_FILE}" == "x1" ]; then
+		mkdir -p Branch_${VERSION_NAME}/sync/
 		echo "Branch_${VERSION_NAME} 目录已存在，仅对确实的信息文件进行补充..."
 		if [ ! -f ${BASE_DIR}/Branch_${VERSION_NAME}/branch_message ]; then
 			echo -n "创建分支说明文件..."
 			echo "自建分支 Branch_${VERSION_NAME}" > ${BASE_DIR}/Branch_${VERSION_NAME}/branch_message
 			echo "完成！"
 		fi
-		if [ ! -f ${BASE_DIR}/Branch_${VERSION_NAME}/branch_stamp ]; then
+		if [ ! -f ${BASE_DIR}/Branch_${VERSION_NAME}/sync/branch_stamp ]; then
 			echo -n "创建分支时间戳文件..."
-			echo "${DATE_SUFF}" > ${BASE_DIR}/Branch_${VERSION_NAME}/branch_stamp
+			echo "${DATE_SUFF}" > ${BASE_DIR}/Branch_${VERSION_NAME}/sync/branch_stamp
 			echo "完成！"
 		fi
 # 		exit 0
