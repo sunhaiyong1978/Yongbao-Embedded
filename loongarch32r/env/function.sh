@@ -439,7 +439,11 @@ function set_strip_step
 	if [ "x${OPT_SET_OVERLAY_DIR}" == "x" ]; then
 	        OVERLAY_DIR=$(cat ${NEW_TARGET_SYSDIR}/../env/${STEP_BUILDNAME}/overlay.set | grep "overlay_dir=" | head -n1 | gawk -F'=' '{ print $2 }')
 	else
-		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^-]@@g")
+		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
+	fi
+
+	if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
+		OVERLAY_DIR=$(echo "${SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
 	fi
 
 	if [ "x${OVERLAY_DIR}" == "x" ]; then
@@ -504,7 +508,11 @@ function set_split_conf
 	if [ "x${OPT_SET_OVERLAY_DIR}" == "x" ]; then
 	        OVERLAY_DIR=$(cat ${NEW_TARGET_SYSDIR}/../env/${STEP_BUILDNAME}/overlay.set | grep "overlay_dir=" | head -n1 | gawk -F'=' '{ print $2 }')
 	else
-		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^-]@@g")
+		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
+	fi
+
+	if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
+		OVERLAY_DIR=$(echo "${SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
 	fi
 
 	if [ "x${OVERLAY_DIR}" == "x" ]; then
@@ -540,6 +548,80 @@ function set_split_conf
 	return
 }
 
+function set_final_fix_step
+{
+        declare FINAL_FIX_SET_DIRECTORY="/usr/bin"
+        declare FINAL_FIX_SET_FILES_TYPE="f"
+        declare FINAL_FIX_SET_COMMAND_OPT="F"
+        declare FINAL_FIX_SET_COMMAND_DEST=""
+        declare FINAL_FIX_SET_COMMAND_DEST_FIX=""
+
+	declare OVERLAY_DIR="sysroot"
+
+	if [ "x${OPT_SET_OVERLAY_DIR}" == "x" ]; then
+	        OVERLAY_DIR=$(cat ${NEW_TARGET_SYSDIR}/../env/${STEP_BUILDNAME}/overlay.set | grep "overlay_dir=" | head -n1 | gawk -F'=' '{ print $2 }')
+	else
+		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
+	fi
+
+	if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
+		OVERLAY_DIR=$(echo "${SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
+	fi
+
+	if [ "x${OVERLAY_DIR}" == "x" ]; then
+		return
+	fi
+
+	if [ -d ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR} ]; then
+		if [ ! -f ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.final_fix ]; then
+			touch ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.final_fix
+		fi
+	else
+		return
+	fi
+	
+	if [ "x${1}" == "x" ]; then
+		return
+	fi
+	FINAL_FIX_SET_DIRECTORY="${1}"
+
+	case "x${2}" in
+		xD | xF | xS | xC)
+			FINAL_FIX_COMMAND_OPT="${2}"
+			;;
+		*)
+		FINAL_FIX_COMMAND_OPT="F"
+	esac
+
+	case "x${3}" in
+		xf | xd | xl | xg)
+			FINAL_FIX_FILES_TYPE="${3}"
+			;;
+		*)
+			FINAL_FIX_FILES_TYPE="f"
+			;;
+	esac
+
+	if [ "x${4}" == "x" ]; then
+		FINAL_FIX_SET_COMMAND_DEST=""
+	else
+		FINAL_FIX_SET_COMMAND_DEST="${4}"
+	fi
+
+	if [ "x${5}" == "x" ]; then
+		FINAL_FIX_SET_COMMAND_DEST_FIX=""
+	else
+		FINAL_FIX_SET_COMMAND_DEST_FIX="${5}"
+	fi
+
+
+	echo "${FINAL_FIX_SET_DIRECTORY}|${FINAL_FIX_COMMAND_OPT}|${FINAL_FIX_FILES_TYPE}|${FINAL_FIX_SET_COMMAND_DEST}|${FINAL_FIX_SET_COMMAND_DEST_FIX}" >> ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.final_fix
+
+	return
+}
+
+
+
 
 function set_step_to_dist
 {
@@ -548,7 +630,11 @@ function set_step_to_dist
 	if [ "x${OPT_SET_OVERLAY_DIR}" == "x" ]; then
 	        OVERLAY_DIR=$(cat ${NEW_TARGET_SYSDIR}/../env/${STEP_BUILDNAME}/overlay.set | grep "overlay_dir=" | head -n1 | gawk -F'=' '{ print $2 }')
 	else
-		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^-]@@g")
+		OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
+	fi
+
+	if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
+		OVERLAY_DIR=$(echo "${SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
 	fi
 
 	if [ "x${OVERLAY_DIR}" == "x" ]; then
@@ -556,9 +642,12 @@ function set_step_to_dist
 	fi
 
 	if [ -d ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR} ]; then
-		if [ ! -f ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.dist ]; then
-			touch ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.dist
-		fi
+# 		if [ ! -f ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.dist ]; then
+#			touch ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.dist
+# 		fi
+		echo "export STEP_BUILDNAME=${STEP_BUILDNAME}" >> ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.dist
+# 		echo "export SYSDIR=${SYSDIR}" >> ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.dist
+		echo "export TEMP_DIRECTORY=${TEMP_DIRECTORY}" >> ${NEW_TARGET_SYSDIR}/overlaydir/${OVERLAY_DIR}.dist
 	else
 		return
 	fi
@@ -605,8 +694,12 @@ function default_set_comment
         if [ "x${OPT_SET_OVERLAY_DIR}" == "x" ]; then
                 OVERLAY_DIR=$(cat ${NEW_TARGET_SYSDIR}/../env/${STEP_BUILDNAME}/overlay.set | grep "overlay_dir=" | head -n1 | gawk -F'=' '{ print $2 }')
         else
-                OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^-]@@g")
+                OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
         fi
+
+	if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
+		OVERLAY_DIR=$(echo "${SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
+	fi
 
         if [ "x${OVERLAY_DIR}" == "x" ]; then
                 return
@@ -644,8 +737,12 @@ function default_set_conf
         if [ "x${OPT_SET_OVERLAY_DIR}" == "x" ]; then
                 OVERLAY_DIR=$(cat ${NEW_TARGET_SYSDIR}/../env/${STEP_BUILDNAME}/overlay.set | grep "overlay_dir=" | head -n1 | gawk -F'=' '{ print $2 }')
         else
-                OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^-]@@g")
+                OVERLAY_DIR=$(echo "${OPT_SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
         fi
+
+	if [ "x${SET_OVERLAY_DIR}" != "x" ]; then
+		OVERLAY_DIR=$(echo "${SET_OVERLAY_DIR}" | sed -e "s@,@ @g" -e "s@[^[:alnum:]\|^[:space:]\|^_\|^\.\|^-]@@g")
+	fi
 
         if [ "x${OVERLAY_DIR}" == "x" ]; then
                 return
@@ -672,10 +769,32 @@ function default_set_conf
 # if [ -f ${NEW_TARGET_SYSDIR}/set_env.conf ]; then
 # 	source ${NEW_TARGET_SYSDIR}/set_env.conf
 # fi
-if [ -f ${NEW_TARGET_SYSDIR}/package_env.conf ]; then
-	source ${NEW_TARGET_SYSDIR}/package_env.conf
+if [ -f ${NEW_TARGET_SYSDIR}/temp/package_env_${YONGBAO_BUILD_UUID}.conf ]; then
+	source ${NEW_TARGET_SYSDIR}/temp/package_env_${YONGBAO_BUILD_UUID}.conf
 fi
 
 # if [ -f ${NEW_TARGET_SYSDIR}/package_unset.conf ]; then
 # 	source ${NEW_TARGET_SYSDIR}/package_unset.conf
 # fi
+
+
+function unpack_for_pkg_format
+{
+	if [ "x${1}" == "x" ] || [ "x${1}" == "xsource" ]; then
+		return
+	fi
+	if [ "x${2}" == "x" ]; then
+		return
+	fi
+	if [ "x${3}" == "x" ]; then
+		return
+	fi
+	rpmbuild --target=${3} -bp SPECS/${2}.spec --define "_topdir ${PWD}"
+# 	rpmbuild --buildroot=${PWD}/test --target=loongarch64 -bp gcc.spec --define "_topdir ${PWD}"
+	if [ "x${4}" != "x0" ]; then
+		RPM_PACKAGE_NAME=$(rpm --specfile --target=${3} --info SPECS/${2}.spec | grep Name | head -n1 | awk -F':' '{ print $2 }' | sed "s@ @@g")
+		RPM_PACKAGE_VERSION=$(rpm --specfile --target=${3} --info SPECS/${2}.spec | grep Version | head -n1 | awk -F':' '{ print $2 }' | sed "s@ @@g")
+		cd BUILD/${RPM_PACKAGE_NAME}-${RPM_PACKAGE_VERSION}*
+	fi
+	return
+}
