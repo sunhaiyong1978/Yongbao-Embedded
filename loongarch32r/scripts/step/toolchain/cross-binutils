@@ -54,9 +54,11 @@ pushd ${BUILD_DIRECTORY}/binutils_git-32bit-test_git
     rm -rf gdb* libdecnumber readline sim
     mkdir cross-build
     pushd cross-build
-	LDFLAGS="${STATIC_STR}" CFLAGS="${CFLAGS} -Wno-error=format-truncation -Wno-error=maybe-uninitialized" \
+	LDFLAGS="${STATIC_STR}" \
         ../configure --prefix=${CROSS_TOOLCHAIN_PREFIX}/cross-tools --build=${CROSS_HOST} --host=${COMPAT_HOST} --target=${COMPAT_TARGET} \
                      --with-sysroot=${CROSS_TOOLCHAIN_PREFIX}/cross-tools/target --enable-nls \
+		     --disable-werror \
+                     --enable-targets=all \
                      --enable-64-bit-bfd --disable-shared --disable-gprofng
         make -j${JOBS} configure-host LIBS="${LIBS} -lzstd -lpthread"
         make -j${JOBS}

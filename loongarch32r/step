@@ -205,8 +205,17 @@
 %step/sysroot/lzo|
 %step/sysroot/libnftnl|
 %step/sysroot/libedit|
+%step/sysroot/jansson|
+%step/sysroot/libnfnetlink|
+%step/sysroot/libnetfilter_conntrack|
+%step/sysroot/iptables|
 %step/sysroot/nftables|
 %step/sysroot/python-nftables|
+%step/sysroot/dbus-python|
+%step/sysroot/pixman|
+%step/sysroot/cairo|
+%step/sysroot/pycairo|
+%step/sysroot/pygobject|
 %step/sysroot/firewalld|
 %step/sysroot/binutils|
 %step/sysroot/llvm-project|

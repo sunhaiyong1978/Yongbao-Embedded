@@ -8,6 +8,7 @@ export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/libxcrypt/4.5.2/
 rm -rf ${BUILD_DIRECTORY}/libxcrypt-4.5.2
 tar xvf ${DOWNLOADDIR}/libxcrypt-4.5.2.tar.xz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/libxcrypt-4.5.2
+	patch -Np1 -i ${SYSDIR}/files/sysroot/libxcrypt/4.5.2/patches/0001-fix-configure-error-under-loongarch64-architecture.patch 
 	patch -Np1 -i ${SYSDIR}/files/sysroot/libxcrypt/4.5.2/patches/0001-fix-configure-error-under-loongarch32-architecture.patch 
 	 
 	for config_i in $(find -name "config.sub")
