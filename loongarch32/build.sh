@@ -2115,6 +2115,7 @@ function packagedir_to_pack
 
 
 mkdir -p ${NEW_TARGET_SYSDIR}
+mkdir -p ${NEW_TARGET_SYSDIR}/temp
 
 declare -a USE_SET_ENV
 declare USE_SET_ENV_COUNT=0
@@ -2602,7 +2603,11 @@ do
 	fi
 	
 	if [ "x${PACKAGE_NAME}" != "xfinal_run" ]; then
-		echo -n "制作${STEP_STAGE}组中的${PACKAGE_NAME} - ${PACKAGE_VERSION} 软件包..."
+		if [ "x${PACKAGE_VERSION}" != "xNULL" ]; then
+			echo -n "制作${STEP_STAGE}组中的${PACKAGE_NAME} - ${PACKAGE_VERSION} 软件包..."
+		else
+			echo -n "制作${STEP_STAGE}组中的${PACKAGE_NAME}软件包..."
+		fi
 	else
 		echo -n "执行${STEP_STAGE}组中的完成脚本..."
 	fi
