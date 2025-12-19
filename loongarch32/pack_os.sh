@@ -182,8 +182,14 @@ if [ "x${OVERLAY_NAME_ALL}" == "x" ]; then
 					echo "正在处理 ${kernel_dir} 内核..."
 					if [ "x${FORCE_CREATE}" == "xTRUE" ]; then
 						tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/img "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+						if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
+							tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/merge_boot "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+						fi
 					else
 						tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/img "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+						if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
+							tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/merge_boot "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+						fi
 					fi
 				done
 			else
@@ -323,8 +329,14 @@ else
 						echo "正在处理 ${OVERLAY_NAME} 内核..."
 						if [ "x${FORCE_CREATE}" == "xTRUE" ]; then
 							tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${OVERLAY_NAME}/img "kernel_${OVERLAY_NAME}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
+								tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${OVERLAY_NAME}/merge_boot "kernel_${OVERLAY_NAME}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							fi
 						else
 							tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${OVERLAY_NAME}/img "kernel_${OVERLAY_NAME}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
+								tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${OVERLAY_NAME}/merge_boot "kernel_${OVERLAY_NAME}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							fi
 						fi
 						YONGBAO_MERGE_NAME="${YONGBAO_MERGE_NAME}_${OVERLAY_NAME}"
 					else

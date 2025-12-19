@@ -126,7 +126,7 @@ function umount_temp_rawdisk
 }
 
 case "${ARCHIVE_MODE}" in
-	tar | squashfs )
+	tar | squashfs | merge | clearmerge | rawdisk)
 		case "${ARCHIVE_COMP_FORMAT}" in
 			xz | zstd | gzip | lzma )
 				ARCHIVE_SQUASHFS_FORMAT="${ARCHIVE_COMP_FORMAT}"
@@ -140,8 +140,12 @@ case "${ARCHIVE_MODE}" in
 				ARCHIVE_SQUASHFS_FORMAT="${ARCHIVE_COMP_FORMAT}"
 				ARCHIVE_TAR_FORMAT="--lzop"
 				;;
+			none)
+				ARCHIVE_SQUASHFS_FORMAT="xz"
+				ARCHIVE_TAR_FORMAT="--xz"
+				;;
 			*)
-				echo "指定的压缩格式无法时别，将使用默认的xz压缩格式。"
+				echo "指定的压缩格式 "${ARCHIVE_COMP_FORMAT}" 无法时别，将使用默认的 xz 压缩格式。"
 				ARCHIVE_SQUASHFS_FORMAT="xz"
 				ARCHIVE_TAR_FORMAT="--xz"
 				;;
