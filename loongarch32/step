@@ -227,7 +227,7 @@
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
 %step/boot/linux-kernel|%config=la32s
-%step/boot/initramfs-for-squashfs|none_status
+%step/boot/initramfs-for-squashfs|%config=la32s;none_status
 %step/boot/bootimage-squashfs|none_status
 %step/boot/dist_boot|
 %step/sysroot/blfs-systemd-units|
