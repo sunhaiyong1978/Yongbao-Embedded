@@ -24,6 +24,7 @@ EOF
 	ln -sfv vim ${SYSROOT_DIR}/usr/bin/vi
 
 cat > ${SYSROOT_DIR}/etc/vimrc << "EOF"
+ source $VIMRUNTIME/defaults.vim
 
 let skip_defaults_vim=1
 set nocompatible
