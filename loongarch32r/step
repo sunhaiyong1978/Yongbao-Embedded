@@ -226,12 +226,14 @@
 %step/sysroot/autogen|
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
+%step/sysroot/blfs-systemd-units|
+%step/sysroot/create_base_files|
+%step/sysroot/ldd_cache|none_status
+%step/sysroot/distro_info|none_status
 %step/boot/linux-kernel|%config=la32r
 %step/boot/initramfs-for-squashfs|%config=la32r;none_status
 %step/boot/bootimage-squashfs|none_status
 %step/boot/dist_boot|
-%step/sysroot/blfs-systemd-units|
-%step/sysroot/create_base_files|
 %step/toolchain/NULL|g_opt+host-dist
 %step/toolchain/binutils|g_opt+host-dist;%host=?
 %step/toolchain/gcc|g_opt+host-dist;%host=?
