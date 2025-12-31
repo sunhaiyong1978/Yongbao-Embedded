@@ -27,6 +27,7 @@ pushd ${BUILD_DIRECTORY}/systemd-258.2
 		      -Dpamconfdir=/etc/pam.d \
 		      -Ddbuspolicydir=/usr/share/dbus-1/system.d -Ddbussessionservicedir=/usr/share/dbus-1/services -Ddbussystemservicedir=/usr/share/dbus-1/system-services \
 		      -Dbashcompletiondir=/usr/share/bash-completion/completions \
+		      -Dntp-servers="ntp1.ntsc.ac.cn ntp2.ntsc.ac.cn ntp3.ntsc.ac.cn" \
 		      ..
 		eval ${NINJA_AND_INSTALL}
 	popd
