@@ -9,6 +9,7 @@ rm -rf ${BUILD_DIRECTORY}/expect5.45.4
 tar xvf ${DOWNLOADDIR}/expect5.45.4.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/expect5.45.4
 	patch -Np1 -i ${SYSDIR}/files/sysroot/expect/5.45.4/patches/0001-enable-cross-compilation.patch 
+	patch -Np1 -i ${SYSDIR}/files/sysroot/expect/5.45.4/patches/0001-expect-5.45.4-fix-from-fedora.patch 
 	 
 	autoreconf -ifv
 	CFLAGS="${CFLAGS} -Wno-implicit-function-declaration -Wno-incompatible-pointer-types -std=gnu17" \

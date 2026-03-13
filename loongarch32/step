@@ -38,6 +38,7 @@
 %step/cross-tools/gobject-introspection|
 %step/cross-tools/vala|
 %step/host-tools/icu4c|
+%step/host-tools/tcl|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
@@ -58,7 +59,6 @@
 %step/sysroot/attr|
 %step/sysroot/acl|
 %step/sysroot/libcap|
-%step/sysroot/shadow|
 %step/sysroot/sed|
 %step/sysroot/pkg-config|
 %step/sysroot/psmisc|
@@ -115,6 +115,7 @@
 %step/sysroot/util-linux|
 %step/sysroot/systemd|
 %step/sysroot/dbus|
+%step/sysroot/shadow|
 %step/sysroot/procps-ng|
 %step/sysroot/e2fsprogs|
 %step/sysroot/openssh|
@@ -224,6 +225,7 @@
 %step/sysroot/pexpect|
 %step/sysroot/ptyprocess|
 %step/sysroot/autogen|
+%step/sysroot/strace|f_sysroot_strace_bad
 %step/sysroot/dist_sysroot|
 %step/sysroot/final_run|
 %step/sysroot/blfs-systemd-units|

@@ -3,17 +3,20 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=groff
-export PACKAGE_VERSION=1.23.0
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/groff/1.23.0/
-rm -rf ${BUILD_DIRECTORY}/groff-1.23.0
-tar xvf ${DOWNLOADDIR}/groff-1.23.0.tar.gz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/groff-1.23.0
+export PACKAGE_VERSION=1.24.0
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/groff/1.24.0/
+rm -rf ${BUILD_DIRECTORY}/groff-1.24.0
+tar xvf ${DOWNLOADDIR}/groff-1.24.0.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/groff-1.24.0
 	for config_i in $(find -name "config.sub")
         do
                 cp -a -f $(automake --print-libdir)/config.{sub,guess} $(dirname ${config_i})/
         done
+	sed -i "/^GROFF_BIN_PATH/s@\$builddir@${CROSSTOOLS_DIR}/bin@g" test-groff.in
+	sed -i "s@\$builddir/groff@${CROSSTOOLS_DIR}/bin/groff@g" test-groff.in
+	sed -i "s@GROFF_COMMAND=test-groff@GROFF_COMMAND=${PWD}/test-groff@g" Makefile.in
 	PAGE=A4 ./configure --prefix=/usr --build=${CROSS_HOST} --host=${CROSS_TARGET}
-	make -j${JOBS} TROFFBIN=troff GROFFBIN=groff GROFF_BIN_PATH=
+	make -j${JOBS} GROFFBIN=${CROSSTOOLS_DIR}/bin/groff GROFF_BIN_PATH=${CROSSTOOLS_DIR}/bin/
 	make DESTDIR=${SYSROOT_DIR} install
 popd 
-rm -rf ${BUILD_DIRECTORY}/groff-1.23.0
+rm -rf ${BUILD_DIRECTORY}/groff-1.24.0
