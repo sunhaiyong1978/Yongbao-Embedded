@@ -3,13 +3,13 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=systemd
-export PACKAGE_VERSION=259.3
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/systemd/259.3/
-rm -rf ${BUILD_DIRECTORY}/systemd-259.3
-tar xvf ${DOWNLOADDIR}/systemd-259.3.tar.gz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/systemd-259.3
-	patch -Np1 -i ${SYSDIR}/files/sysroot/systemd/259.3/patches/0001-systemd-258-add-loongarch32-support.patch 
-	patch -Np1 -i ${SYSDIR}/files/sysroot/systemd/259.3/patches/0001-Add-syscalls-file-for-loongarch32.patch 
+export PACKAGE_VERSION=260.1
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/systemd/260.1/
+rm -rf ${BUILD_DIRECTORY}/systemd-260.1
+tar xvf ${DOWNLOADDIR}/systemd-260.1.tar.gz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/systemd-260.1
+	patch -Np1 -i ${SYSDIR}/files/sysroot/systemd/260.1/patches/0001-systemd-258-add-loongarch32-support.patch 
+	patch -Np1 -i ${SYSDIR}/files/sysroot/systemd/260.1/patches/0001-Add-syscalls-file-for-loongarch32.patch 
 	 
 	pushd src/include/override/sys
 		./generate-syscall.py syscall.h syscall-list.txt syscalls-*.txt
@@ -35,6 +35,22 @@ pushd ${BUILD_DIRECTORY}/systemd-259.3
 	rm -f ${SYSROOT_DIR}/usr/lib/systemd/system/systemd-networkd-wait-online.service
 
 popd 
-rm -rf ${BUILD_DIRECTORY}/systemd-259.3
+rm -rf ${BUILD_DIRECTORY}/systemd-260.1
+
+cat > ${SYSROOT_DIR}/usr/lib/systemd/system/rc-local.service << "EOF"
+[Unit]
+Description=/etc/rc.local Compatibility
+ConditionFileIsExecutable=/etc/rc.local
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/etc/rc.local start
+TimeoutSec=infinity
+RemainAfterExit=yes
+GuessMainPID=no
+EOF
+ln -sfv ../rc-local.service ${SYSROOT_DIR}/usr/lib/systemd/system/multi-user.target.wants/rc-local.service
+
 
 set_strip_step "/usr/lib/systemd" "0"

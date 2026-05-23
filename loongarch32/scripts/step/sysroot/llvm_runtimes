@@ -3,11 +3,11 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=llvm_runtimes
-export PACKAGE_VERSION=32bit
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/llvm_runtimes/32bit/
-rm -rf ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
-tar xvf ${DOWNLOADDIR}/llvm-project_git-32bit_git.tar.gz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
+export PACKAGE_VERSION=22.1.5
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/llvm_runtimes/22.1.5/
+rm -rf ${BUILD_DIRECTORY}/llvm-project-22.1.5.src
+tar xvf ${DOWNLOADDIR}/llvm-project-22.1.5.src.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/llvm-project-22.1.5.src
     pushd compiler-rt
         mkdir cross-build
         pushd cross-build
@@ -33,4 +33,4 @@ pushd ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
 
 
 popd 
-rm -rf ${BUILD_DIRECTORY}/llvm-project_git-32bit_git
+rm -rf ${BUILD_DIRECTORY}/llvm-project-22.1.5.src

@@ -16,6 +16,9 @@
 %step/host-tools/libtool|
 %step/host-tools/groff|
 %step/cross-tools/perl|
+%step/cross-tools/File-ShareDir-Install|
+%step/cross-tools/File-ShareDir|
+%step/cross-tools/Class-Inspector|
 %step/cross-tools/XML-Parser|
 %step/cross-tools/URI|
 %step/cross-tools/Python3|
@@ -240,11 +243,12 @@
 %step/toolchain/binutils|g_opt+host-dist;%host=?
 %step/toolchain/gcc|g_opt+host-dist;%host=?
 %step/toolchain/linux-header|g_opt+host-dist;%host=?
-%step/toolchain/compat_make|g_opt+host-dist;%host=?
-%step/toolchain/compat_glibc|g_opt+host-dist;%host=?
+%step/toolchain/glibc|g_opt+host-dist;%host=?
 %step/toolchain/libxcrypt|g_opt+host-dist;%host=?
 %step/toolchain/gcc-libc|g_opt+host-dist;%host=?
 %step/toolchain/gmp|g_opt+host-dist;%host=?
+%step/toolchain/mpfr|g_opt+host-dist;%host=?
+%step/toolchain/mpc|g_opt+host-dist;%host=?
 %step/toolchain/zlib|g_opt+host-dist;%host=?
 %step/toolchain/zstd|g_opt+host-dist;%host=?
 %step/toolchain/NULL|g_opt+host-dist
@@ -255,6 +259,8 @@
 %step/toolchain/libxcrypt|g_opt+host-dist;%target=?loongarch32
 %step/toolchain/gcc-libc|g_opt+host-dist;%target=?loongarch32
 %step/toolchain/gmp|g_opt+host-dist;%target=?loongarch32
+%step/toolchain/mpfr|g_opt+host-dist;%target=?loongarch32
+%step/toolchain/mpc|g_opt+host-dist;%target=?loongarch32
 %step/toolchain/zlib|g_opt+host-dist;%target=?loongarch32
 %step/toolchain/zstd|g_opt+host-dist;%target=?loongarch32
 %step/toolchain/NULL|g_opt+host-dist
