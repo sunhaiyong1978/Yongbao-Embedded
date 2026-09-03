@@ -3,11 +3,11 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=cross-tools
 export STEP_PACKAGENAME=llvm-project
-export PACKAGE_VERSION=22.1.5
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/cross-tools/llvm-project/22.1.5/
-rm -rf ${BUILD_DIRECTORY}/llvm-project-22.1.5.src
-tar xvf ${DOWNLOADDIR}/llvm-project-22.1.5.src.tar.xz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/llvm-project-22.1.5.src
+export PACKAGE_VERSION=23.1.0
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/cross-tools/llvm-project/23.1.0/
+rm -rf ${BUILD_DIRECTORY}/llvm-project-23.1.0.src
+tar xvf ${DOWNLOADDIR}/llvm-project-23.1.0.src.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/llvm-project-23.1.0.src
 	
 	pushd llvm
 	    mkdir -p native-build
@@ -37,4 +37,4 @@ pushd ${BUILD_DIRECTORY}/llvm-project-22.1.5.src
 		save_package_version cross-tools_llvm-project "${LLVM_DIST_VERSION}"
 	popd
 popd 
-rm -rf ${BUILD_DIRECTORY}/llvm-project-22.1.5.src
+rm -rf ${BUILD_DIRECTORY}/llvm-project-23.1.0.src

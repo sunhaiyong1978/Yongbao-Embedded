@@ -1,0 +1,27 @@
+From d5e52ec463075f9584bbd6f6a4aa48b35ffbc22c Mon Sep 17 00:00:00 2001
+From: Sun Haiyong <sunhaiyong@zdbr.net>
+Date: Wed, 2 Sep 2026 07:16:06 +0000
+Subject: [PATCH] boost add SYS_futex define.
+
+---
+ boost/asio/detail/futex_slim_mutex.hpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/boost/asio/detail/futex_slim_mutex.hpp b/boost/asio/detail/futex_slim_mutex.hpp
+index 3269a6b..68c3fca 100644
+--- a/boost/asio/detail/futex_slim_mutex.hpp
++++ b/boost/asio/detail/futex_slim_mutex.hpp
+@@ -19,6 +19,10 @@
+ 
+ #if defined(BOOST_ASIO_HAS_FUTEX)
+ 
++#ifndef SYS_futex
++#define SYS_futex SYS_futex_time64
++#endif
++
+ #include <atomic>
+ #include <unistd.h>
+ #include <sys/syscall.h>
+-- 
+2.31.1
+
