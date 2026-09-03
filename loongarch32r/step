@@ -34,6 +34,7 @@
 %step/host-tools/guile|
 %step/host-tools/make|
 %step/host-tools/autogen|
+%step/host-tools/ninja|
 %step/cross-tools/NULL|
 %step/cross-tools/llvm-project|
 %step/cross-tools/qemu|
@@ -42,6 +43,7 @@
 %step/cross-tools/vala|
 %step/host-tools/icu4c|
 %step/host-tools/tcl|
+%step/host-tools/pefile|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
@@ -137,9 +139,9 @@
 %step/sysroot/Python|
 %step/sysroot/meson|
 %step/sysroot/ninja|
-%step/sysroot/perl|
-%step/sysroot/XML-Parser|
-%step/sysroot/URI|
+%step/sysroot/perl|f_opt
+%step/sysroot/XML-Parser|f_opt
+%step/sysroot/URI|f_opt
 %step/sysroot/libgpg-error|
 %step/sysroot/libgcrypt|
 %step/sysroot/libxml2|
