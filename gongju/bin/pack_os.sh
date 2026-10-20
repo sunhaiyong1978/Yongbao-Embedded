@@ -14,9 +14,10 @@ declare KERNEL_ONLY=FALSE
 declare HAVE_KERNEL=FALSE
 declare HAVE_PKGS=FALSE
 declare ALL_IN_ONE=FALSE
+declare SKIP_MISS_KERNEL=FALSE
 declare WORLD_PARM=""
 
-while getopts 'fkpaA:m:c:wh' OPT; do
+while getopts 'fkpaA:sm:c:wh' OPT; do
     case $OPT in
         f)
             FORCE_CREATE=TRUE
@@ -34,6 +35,9 @@ while getopts 'fkpaA:m:c:wh' OPT; do
 	A)
 	    ALL_IN_ONE=TRUE
 	    ALL_IN_ONE_DIR=$OPTARG
+	    ;;
+	s)
+	    SKIP_MISS_KERNEL=TRUE
 	    ;;
 	m)
             ARCHIVE_MODE=$OPTARG
@@ -61,10 +65,11 @@ while getopts 'fkpaA:m:c:wh' OPT; do
             echo "选项："
             echo "    -h: 显示当前帮助信息。"
             echo "    -f: 将原有已经完成的打包文件进行重命名，并重新进行目标的打包工作。"
-            echo "    -k: 该参数表示处理的目标涵盖内核，当存在指定“[目标名]”时，若指定目标名不在overlaydir_strip中，则将尝试查寻对应名称的内核名，若不指定任何“[目标名]”的情况下将对所有找到的内核进行下一步的处理。"
+            echo "    -k: 该参数表示处理的目标涵盖内核；当指定该参数时，存在指定“[目标名]”时，若指定目标名不在overlaydir_strip中，则将尝试查寻对应名称的内核名，若未指定 -k 参数，则不会去查寻对应的内核名；指定该参数却未指定任何“[目标名]”的情况下将对所有找到的内核进行下一步的处理。"
 	    echo "    -p: 该参数标识处理的目标涵盖独立软件包，该参数仅当指定了“[目标名]”时才有效，“[目标名]”在overlaydir_strip和内核名中都不存在时，将继续查寻独立软件包的名称，对符合名字的软件包进行进一步的处理，不指定该参数则不会搜索符合名称的独立软件包。"
 	    echo "    -a: 指定该参数后，对所有要处理的 “[目标名]” 中的文件合并到一起，以备进行下一步的处理，合并后的命名将自动设置，如需指定名称请时用 -A <名称> 参数。"
 	    echo "    -A <名称>: 该参数需要指定一个名称，该名称是对所有要处理的 “[目标名]” 中的文件合并到一起后的名称，该参数设置后将自动设置 -a 参数。"
+	    echo "    -s: 当没有内核需要打包时继续后续目标的打包。"
             echo "    -m <模式名>: 设置打包模式，目前可用的打包模式名有 squashfs、tar、merge 和 rawdisk 。"
 	    echo "    -c <压缩格式>: 设置打包时使用的压缩格式，目前可以指定的压缩格式有 gzip、xz、zstd、lz4 和 lzo。"
 	    echo "    -w: 强制在主线环境中进行打包，不指定该参数将使用 current_branch 指定的分支环境中进行打包，若不存在 current_branch 文件则默认对主线环境进行打包。"
@@ -200,32 +205,41 @@ fi
 
 if [ "x${OVERLAY_NAME_ALL}" == "x" ]; then
 	if [ "x${KERNEL_CREATE}" == "xTRUE" ]; then
-		KERNEL_VERSION=$(cat ${NEW_TARGET_SYSDIR}/common_files/linux-kernel.version)
-		if [ "x${KERNEL_VERSION}" != "x" ]; then
-        		KERNEL_LIST="$(ls ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION})"
-			if [ "x$?" == "x0" ] && [ "x${KERNEL_LIST}" != "x" ]; then
-				for kernel_dir in $(ls ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION})
-				do
-					echo "正在处理 ${kernel_dir} 内核..."
-					if [ "x${FORCE_CREATE}" == "xTRUE" ]; then
-						tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/img "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
-						if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
-							tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/merge_boot "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+		if [ -f ${NEW_TARGET_SYSDIR}/common_files/linux-kernel.version ]; then
+			KERNEL_VERSION=$(cat ${NEW_TARGET_SYSDIR}/common_files/linux-kernel.version)
+			if [ "x${KERNEL_VERSION}" != "x" ]; then
+        			KERNEL_LIST="$(ls ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION})"
+				if [ "x$?" == "x0" ] && [ "x${KERNEL_LIST}" != "x" ]; then
+					for kernel_dir in $(ls ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION})
+					do
+						echo "正在处理 ${kernel_dir} 内核..."
+						if [ "x${FORCE_CREATE}" == "xTRUE" ]; then
+							tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/img "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
+								tools/pack_archive_dir.sh ${WORLD_PARM} -f ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/merge_boot "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							fi
+						else
+							tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/img "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
+								tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/merge_boot "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
+							fi
 						fi
-					else
-						tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/img "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
-						if [ "x${ALL_IN_ONE}" == "xTRUE" ]; then
-							tools/pack_archive_dir.sh ${WORLD_PARM} ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION}/${kernel_dir}/merge_boot "kernel_${kernel_dir}" ${ARCHIVE_MODE} ${ARCHIVE_COMP_FORMAT} ${DISTRO_NAME} ${DISTRO_VERSION} ${DISTRO_ARCH}
-						fi
-					fi
-				done
+					done
+				else
+                			echo "发现编译内核的版本信息，但未找到对应的内核文件，无法继续！请检查 ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION} 目录中是否存放有内核目录。"
+			                exit 6
+        			fi
 			else
-                		echo "发现编译内核的版本信息，但未找到对应的内核文件，无法继续！请检查 ${NEW_TARGET_SYSDIR}/dist/os/linux-kernel/${KERNEL_VERSION} 目录中是否存放有内核目录。"
-		                exit 6
-        		fi
+				if [ "x${SKIP_MISS_KERNEL}" == "xFALSE" ]; then
+					echo "没有发现构建内核版本的信息，无法打包内核，请确认是否完成内核的编译，或使用 -s 参数跳过内核打包。"
+					exit 7
+				fi
+			fi
 		else
-			echo "没有发现构建内核版本的信息，无法打包内核，请确认是否完成内核的编译。"
-			exit 7
+			if [ "x${SKIP_MISS_KERNEL}" == "xFALSE" ]; then
+				echo "没有发现构建内核版本的信息，无法打包内核，请确认是否完成内核的编译，或使用 -s 参数跳过内核打包。"
+				exit 7
+			fi
 		fi
 	fi
 	if [ "x${KERNEL_ONLY}" == "xFALSE" ]; then

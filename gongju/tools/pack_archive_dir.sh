@@ -126,6 +126,32 @@ function umount_temp_rawdisk
         sync
 }
 
+function get_archive_use_name_mode
+{
+	declare NAME_MODE=""
+	declare NAME_MODE_TEMP=""
+# 	${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-
+	if [ -f ${NEW_BASE_DIR}/env/name_mode/default.set ]; then
+		NAME_MODE="$(cat ${NEW_BASE_DIR}/env/name_mode/default.set | grep "^default=" | tail -n 1 | awk -F'=' '{ print $2 }' | sed "s@[^?[:alnum:]._<>-]@@g")"
+	else
+		NAME_MODE="<OS_NAME>-<OS_VERSION>-<ARCH_NAME>-"
+	fi
+	if [ "x${ARCHIVE_OS_NAME}" != "x" ]; then
+		NAME_MODE_TEMP="$(echo "${NAME_MODE}" | sed "s@<OS_NAME>@${ARCHIVE_OS_NAME}@g")"
+		NAME_MODE="${NAME_MODE_TEMP}"
+	fi
+	if [ "x${ARCHIVE_OS_VERSION}" != "x" ]; then
+		NAME_MODE_TEMP="$(echo "${NAME_MODE}" | sed "s@<OS_VERSION>@${ARCHIVE_OS_VERSION}@g")"
+		NAME_MODE="${NAME_MODE_TEMP}"
+	fi
+	if [ "x${ARCHIVE_ARCH_NAME}" != "x" ]; then
+		NAME_MODE_TEMP="$(echo "${NAME_MODE}" | sed "s@<ARCH_NAME>@${ARCHIVE_ARCH_NAME}@g")"
+		NAME_MODE="${NAME_MODE_TEMP}"
+	fi
+	echo "${NAME_MODE}"
+}
+
+
 case "${ARCHIVE_MODE}" in
 	tar | squashfs )
 		case "${ARCHIVE_COMP_FORMAT}" in
@@ -236,23 +262,26 @@ function convert_to_rawdisk
 		mkdir -p ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/
 		ARCHIVE_DIR_USESPACE_DU="$(du -lBM -s . | awk -F'M' '{ print $1 }')"
 		ARCHIVE_DIR_USESPACE_COUNT=$(expr ${ARCHIVE_DIR_USESPACE_DU} + \( \( \( ${ARCHIVE_DIR_USESPACE_DU} / 100 \) \* 8 \) + 52 \))
-		if [ -f ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw ]; then
-			rm -f ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw
+# 		if [ -f ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw ]; then
+# 			rm -f ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw
+# 		fi
+		if [ -f ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.raw ]; then
+			rm -f ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.raw
 		fi
 		echo "正在创建虚拟磁盘文件(${ARCHIVE_DIR_USESPACE_COUNT}M)..."
-		dd if=/dev/zero of=${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw bs=1M count=${ARCHIVE_DIR_USESPACE_COUNT} 1>/dev/null
+		dd if=/dev/zero of=${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.raw bs=1M count=${ARCHIVE_DIR_USESPACE_COUNT} 1>/dev/null
 		echo "完成。"
 		echo "开始格式化为ext4文件系统..."
-		/sbin/mkfs.ext4 -E root_owner=$(id -u):$(id -g) ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw 1>/dev/null
+		/sbin/mkfs.ext4 -E root_owner=$(id -u):$(id -g) ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.raw 1>/dev/null
 		echo "完成。"
 		echo -n "开始复制文件到虚拟磁盘文件中，请耐心等待..."
 # 		fuse2fs ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw ${NEW_TARGET_SYSDIR}/temp/rawdisk/ 2>&1 1>/dev/null
-		sudo mount ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw ${NEW_TARGET_SYSDIR}/temp/rawdisk/ 2>&1 1>/dev/null
+		sudo mount ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.raw ${NEW_TARGET_SYSDIR}/temp/rawdisk/ 2>&1 1>/dev/null
 		cp -a . ${NEW_TARGET_SYSDIR}/temp/rawdisk/
 #  		rsync -ah --progress --chown=root:root . ${NEW_TARGET_SYSDIR}/temp/rawdisk/
 		echo "完成。"
 		umount_temp_rawdisk
-		echo "${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw 文件创建完成。"
+		echo "${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.raw 文件创建完成。"
 	popd > /dev/null
 }
 
@@ -287,9 +316,9 @@ function convert_to_vdisk
 
 # 	echo "${HOST_TOOLS_DIR}/bin/qemu-img convert -f raw -O ${VDISK_CONVERT_FORMAT_STR} ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.${VDISK_CONVERT_SUFF} -p"
 	echo "正在创建 ${VDISK_FORMAT} 格式的磁盘文件..."
-	${HOST_TOOLS_DIR}/bin/qemu-img convert -f raw -O ${VDISK_CONVERT_FORMAT_STR} ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.raw ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.${VDISK_CONVERT_SUFF} -p
+	${HOST_TOOLS_DIR}/bin/qemu-img convert -f raw -O ${VDISK_CONVERT_FORMAT_STR} ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.raw ${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.${VDISK_CONVERT_SUFF} -p
 	if [ "x$?" == "x0" ]; then
-		echo "${VDISK_FORMAT} 磁盘文件创建成功：${NEW_TARGET_SYSDIR}/dist/os/rawdisk/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.${VDISK_CONVERT_SUFF}"
+		echo "${VDISK_FORMAT} 磁盘文件创建成功：${NEW_TARGET_SYSDIR}/dist/os/rawdisk/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.${VDISK_CONVERT_SUFF}"
 	else
 		echo "${VDISK_FORMAT} 磁盘文件创建失败。"
 	fi
@@ -306,6 +335,10 @@ if [ -d ${ARCHIVE_DIR} ]; then
 			if [ -f /sbin/mksquashfs ]; then
 				MKSQUASHFS=/sbin/mksquashfs
 			fi
+			if [ "x${MKSQUASHFS}" == "x" ]; then
+				echo "没有找到 squashfs 文件制作工具，请先安装再重新执行当前命令。"
+				exit 9
+			fi
 			mkdir -p ${NEW_TARGET_SYSDIR}/dist/os/squashfs/${ARCHIVE_OS_NAME}/${ARCHIVE_OS_VERSION}/
 			if [ ! -f ${NEW_TARGET_SYSDIR}/dist/os/squashfs/${ARCHIVE_OS_NAME}/${ARCHIVE_OS_VERSION}/${ARCHIVE_STEP_NAME}.${ARCHIVE_ARCH_NAME}.squashfs ] || [ "x${FORCE_CREATE}" == "xTRUE" ]; then
 				rm -f ${NEW_TARGET_SYSDIR}/dist/os/squashfs/${ARCHIVE_OS_NAME}/${ARCHIVE_OS_VERSION}/${ARCHIVE_STEP_NAME}.${ARCHIVE_ARCH_NAME}.squashfs
@@ -320,13 +353,18 @@ if [ -d ${ARCHIVE_DIR} ]; then
 			echo "正在使用 ${ARCHIVE_MODE} 方式打包 ${ARCHIVE_DIR} 目录中的文件..."
 			pushd ${ARCHIVE_DIR} > /dev/null
 			mkdir -p ${NEW_TARGET_SYSDIR}/dist/os/tar/
-			if [ ! -f ${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} ] || [ "x${FORCE_CREATE}" == "xTRUE" ]; then
-				rm -f ${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF}
-				tar --checkpoint=200 --checkpoint-action=dot --xattrs-include='*' --owner=root --group=root ${ARCHIVE_TAR_FORMAT} -caf ${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} *
+# 			if [ ! -f ${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} ] || [ "x${FORCE_CREATE}" == "xTRUE" ]; then
+# 				rm -f ${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF}
+# 				tar --checkpoint=200 --checkpoint-action=dot --xattrs-include='*' --owner=root --group=root ${ARCHIVE_TAR_FORMAT} -caf ${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} *
+			if [ ! -f ${NEW_TARGET_SYSDIR}/dist/os/tar/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} ] || [ "x${FORCE_CREATE}" == "xTRUE" ]; then
+				rm -f ${NEW_TARGET_SYSDIR}/dist/os/tar/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF}
+				tar --checkpoint=200 --checkpoint-action=dot --xattrs-include='*' --owner=root --group=root ${ARCHIVE_TAR_FORMAT} -caf ${NEW_TARGET_SYSDIR}/dist/os/tar/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} *
 				echo ""
-				echo "${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} 文件创建完成。"
+# 				echo "${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} 文件创建完成。"
+				echo "${NEW_TARGET_SYSDIR}/dist/os/tar/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} 文件创建完成。"
 			else
-				echo "${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} 文件已创建。"
+# 				echo "${NEW_TARGET_SYSDIR}/dist/os/tar/${ARCHIVE_ARCH_NAME}-${ARCHIVE_OS_NAME}-${ARCHIVE_OS_VERSION}-${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} 文件已创建。"
+				echo "${NEW_TARGET_SYSDIR}/dist/os/tar/$(get_archive_use_name_mode)${ARCHIVE_STEP_NAME}.tar.${ARCHIVE_TAR_SUFF} 文件已创建。"
 			fi
 			popd > /dev/null
 			;;
