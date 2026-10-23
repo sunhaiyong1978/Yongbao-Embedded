@@ -1,29 +1,37 @@
 # syntax=docker/dockerfile:1.14
+ 
+FROM --platform=linux/amd64 ubuntu:22.04 AS download_packages-amd64
+FROM --platform=linux/loong64 ghcr.io/fedora-remix-loongarch/mini-image:f43 AS download_packages-loong64
 
-ARG BASE_IMAGE=ubuntu:22.04
-
-# ============================================================
-# Stage 0: 下载软件包源代码
-# 执行 ./build.sh -x && ./tools/get_all_package_url.sh -i workbase/step.index, 下载软件包源码。
-# ============================================================
-FROM ${BASE_IMAGE} AS download_packages
+FROM download_packages-${TARGETARCH} AS download_packages
 ARG ARCH=loongarch32
+ARG TARGETARCH
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        locales \
-        gettext-base \
-        git \
-        curl \
-        wget \
-        && locale-gen zh_CN.UTF-8 \
-        && rm -rf /var/lib/apt/lists/*
+RUN if [ "${TARGETARCH}" = "amd64" ]; then \
+        apt-get update && apt-get install -y --no-install-recommends \
+            ca-certificates \
+            locales \
+            gettext-base \
+            git \
+            curl \
+            wget \
+            && locale-gen zh_CN.UTF-8 \
+            && rm -rf /var/lib/apt/lists/* ; \
+    elif [ "${TARGETARCH}" = "loong64" ]; then \
+        dnf update -y && dnf install -y \
+            curl \
+            wget \
+            git \
+            glibc-langpack-zh ; \
+    else \
+        echo "Unsupported architecture: ${TARGETARCH}" >&2; \
+        exit 1; \
+    fi
 
 WORKDIR /src
 COPY . .
-# COPY ./download_packages-cache ./${ARCH}/downloads
 RUN mkdir -p ./${ARCH}/downloads ./download_packages-cache/foo \
     && mv -v ./download_packages-cache/* ./${ARCH}/downloads/
 
