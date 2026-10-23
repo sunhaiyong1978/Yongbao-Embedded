@@ -3,12 +3,13 @@ source env/distro.info
 source env/function.sh
 export STEP_BUILDNAME=sysroot
 export STEP_PACKAGENAME=glibc
-export PACKAGE_VERSION=32bit-test
-export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/glibc/32bit-test/
-rm -rf ${BUILD_DIRECTORY}/glibc-32bit-test_git
-tar xvf ${DOWNLOADDIR}/glibc-32bit-test_git.tar.gz -C ${BUILD_DIRECTORY} 
-pushd ${BUILD_DIRECTORY}/glibc-32bit-test_git
-    patch -Np1 -i ${SYSDIR}/files/sysroot/glibc/32bit-test/patches/0001-glibc-add-C.UTF-8-to-localedata.patch 
+export PACKAGE_VERSION=2.44
+export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/glibc/2.44/
+rm -rf ${BUILD_DIRECTORY}/glibc-2.44
+tar xvf ${DOWNLOADDIR}/glibc-2.44.tar.xz -C ${BUILD_DIRECTORY} 
+pushd ${BUILD_DIRECTORY}/glibc-2.44
+    patch -Np1 -i ${SYSDIR}/files/sysroot/glibc/2.44/patches/0001-glibc-add-C.UTF-8-to-localedata.patch 
+	patch -Np1 -i ${SYSDIR}/files/sysroot/glibc/2.44/patches/0001-glibc-2.44-Support-pointer-guard-on-LoongArch32.patch 
 	 
     cp -a -f $(automake --print-libdir)/config.{sub,guess} ./
     mkdir -p build
@@ -33,4 +34,4 @@ pushd ${BUILD_DIRECTORY}/glibc-32bit-test_git
 	fi
      fi
 popd 
-rm -rf ${BUILD_DIRECTORY}/glibc-32bit-test_git
+rm -rf ${BUILD_DIRECTORY}/glibc-2.44

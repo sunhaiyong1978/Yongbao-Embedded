@@ -8,6 +8,7 @@ rsyncd:x:46:46:rsyncd Daemon:/home/rsync:/bin/false
 sshd:x:50:50:sshd PrivSep:/var/lib/sshd:/bin/false
 lightdm:x:65:65:Lightdm Daemon:/var/lib/lightdm:/bin/false
 sddm:x:66:66:Simple Desktop Display Manager:/var/lib/sddm:/sbin/nologin
+plasmalogin:x:67:67:Plasma Login Manager:/var/lib/plasmalogin:/sbin/nologin
 colord:x:71:71:Color Daemon Owner:/var/lib/colord:/bin/false
 systemd-bus-proxy:x:72:72:systemd Bus Proxy:/:/bin/false
 systemd-journal-gateway:x:73:73:systemd Journal Gateway:/:/bin/false

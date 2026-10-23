@@ -225,7 +225,7 @@
 %step/sysroot/firewalld|
 %step/sysroot/binutils|
 %step/sysroot/llvm-project|
-%step/sysroot/llvm_runtimes|
+%step/sysroot/llvm_runtimes|bad
 %step/sysroot/glibc_localedata|f_sysroot_glibc_localedata_bad
 %step/sysroot/pexpect|
 %step/sysroot/ptyprocess|

@@ -26,6 +26,7 @@ sshd:x:50:
 kvm:x:61:
 lightdm:x:65:
 sddm:x:66:
+plasmalogin:x:66:
 colord:x:71:
 systemd-bus-proxy:x:72:
 systemd-journal-gateway:x:73:
