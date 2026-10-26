@@ -17,6 +17,7 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
             git \
             curl \
             wget \
+            tar \
             && locale-gen zh_CN.UTF-8 \
             && rm -rf /var/lib/apt/lists/* ; \
     elif [ "${TARGETARCH}" = "loong64" ]; then \
@@ -24,6 +25,7 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
             curl \
             wget \
             git \
+            tar \
             glibc-langpack-zh ; \
     else \
         echo "Unsupported architecture: ${TARGETARCH}" >&2; \
