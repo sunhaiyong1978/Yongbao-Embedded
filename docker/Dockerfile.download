@@ -38,7 +38,7 @@ RUN mkdir -p ./${ARCH}/downloads ./download_packages-cache/foo \
 RUN chmod +x ./${ARCH}/build.sh \
     && cd ./${ARCH} \
     && ./build.sh -x \
-    && tools/get_all_package_url.sh -i workbase/step.index
+    && tools/get_all_package_url.sh -p -l -i workbase/step.index
 
 # 源码包统一收集到 /output/downloads
 RUN mkdir -p /output/downloads /output/downloads/sources \
