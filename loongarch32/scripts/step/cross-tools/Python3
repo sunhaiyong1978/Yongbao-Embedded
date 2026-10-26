@@ -10,7 +10,7 @@ tar xvf ${DOWNLOADDIR}/Python-3.15.0.tar.xz -C ${BUILD_DIRECTORY}
 pushd ${BUILD_DIRECTORY}/Python-3.15.0
 	CFLAGS="${CFLAGS} -fPIC"
 	./configure --prefix=${CROSSTOOLS_DIR} --with-platlibdir=lib${LIB_SUFF} \
-	            --disable-shared --with-system-expat --with-system-ffi \
+	            --disable-shared --with-system-ffi \
 	            --with-ensurepip=yes --enable-optimizations \
 	            ac_cv_broken_sem_getvalue=yes
 	eval ${MAKE_AND_INSTALL}
