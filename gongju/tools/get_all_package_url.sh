@@ -44,8 +44,9 @@ declare AUTO_DOWNLOAD_OR_COPY=0
 declare SAVE_PROXY=""
 declare EMU_BROWSER=""
 declare DOWNLOAD_TIMEOUT=120
+declare SHOW_ERROR_LOG=0
 
-while getopts 'gfuri:pswat:v:h' OPT; do
+while getopts 'gfuri:pswat:v:lh' OPT; do
     case $OPT in
 	g)  
 	    GIT_ONLY=TRUE
@@ -85,6 +86,9 @@ while getopts 'gfuri:pswat:v:h' OPT; do
 	    ;;
 	v)
 	    VERSION_INDEX=$OPTARG
+	    ;;
+	l)
+	    SHOW_ERROR_LOG=1
 	    ;;
         h|?)
             echo "下载目标系统所涉及的源码包和资源文件。"
@@ -744,6 +748,13 @@ if [ "x${NO_FILE}" != "x警告：" ]; then
 fi
 
 if [ "x${FAIL_COUNT}" != "x1" ]; then
-	echo "有文件下载失败，请检查失败记录 logs/download_fail.log"
-	exit -1
+	if [ "x${SHOW_ERROR_LOG}" == "x1" ]; then
+		echo "-------------错误日志------------------"
+		cat ${NEW_TARGET_SYSDIR}/logs/download_fail.log
+		echo "----------------------------------------"
+		exit 0
+	else
+		echo "有文件下载失败，请检查失败记录 logs/download_fail.log"
+		exit -1
+	fi
 fi
