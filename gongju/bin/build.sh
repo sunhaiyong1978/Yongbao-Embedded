@@ -2191,6 +2191,10 @@ function get_fit_error_info
 		echo "指定的 ${1} 文件不存在。"
 		return 0
 	fi
+
+	mkdir -p ${NEW_TARGET_SYSDIR}/collect
+	cp ${1} ${NEW_TARGET_SYSDIR}/collect/error.log
+
 	TRUE_ERROR_MESSAGE="$(cat ${1})"
 	GET_TRUE_ERROR_MESSAGE=$(echo "${TRUE_ERROR_MESSAGE}" | grep "A full log can be found at")
 	if [ "x${GET_TRUE_ERROR_MESSAGE}" != "x" ]; then
@@ -2201,6 +2205,7 @@ function get_fit_error_info
 		TRUE_ERROR_FILE="$(echo "${GET_TRUE_ERROR_MESSAGE}" | awk -F' ' '{ print $NF }' | head -n 1)"
 		if [ -n "${TRUE_ERROR_FILE}" ] && [ -f "${TRUE_ERROR_FILE}" ]; then
 			cat ${TRUE_ERROR_FILE} | tail -n 300
+			cp ${TRUE_ERROR_FILE} ${NEW_TARGET_SYSDIR}/collect/error_file.txt
 		fi
 	fi
 	return 0
