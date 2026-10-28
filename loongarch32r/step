@@ -44,6 +44,7 @@
 %step/host-tools/icu4c|
 %step/host-tools/tcl|
 %step/host-tools/pefile|
+%step/host-tools/util-linux|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
