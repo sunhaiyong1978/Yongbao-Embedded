@@ -12,12 +12,11 @@ pushd ${BUILD_DIRECTORY}/qemu_git-32bit-test_git
     sed -i "s@la32r@max32@g" linux-user/loongarch/target_elf.h
     mkdir -p build
     pushd build
-	CFLAGS="${CFLAGS} -Wno-error=int-in-bool-context" \
+	CFLAGS="-O2 -Wno-error=int-in-bool-context $([[ $(gcc -dumpversion) -ge 16 ]] && echo "-fno-link-libatomic" || echo "") " \
 	LDFLAGS="" \
 	../configure --prefix=${CROSSTOOLS_DIR} \
 		     --target-list=${QEMU_TARGET_ARCH}-linux-user \
 		     --disable-werror \
- 		     --static \
 		     --disable-docs
         ninja
         cp qemu-${QEMU_TARGET_ARCH} ${CROSSTOOLS_DIR}/bin/qemu-${QEMU_TARGET_ARCH}.bin
