@@ -45,6 +45,7 @@
 %step/host-tools/tcl|
 %step/host-tools/pefile|
 %step/host-tools/util-linux|
+%step/cross-tools/perl-Devel-CheckLib|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
@@ -226,7 +227,7 @@
 %step/sysroot/firewalld|
 %step/sysroot/binutils|
 %step/sysroot/llvm-project|
-%step/sysroot/llvm_runtimes|bad
+%step/sysroot/llvm_runtimes|
 %step/sysroot/glibc_localedata|f_sysroot_glibc_localedata_bad
 %step/sysroot/pexpect|
 %step/sysroot/ptyprocess|
@@ -238,8 +239,8 @@
 %step/sysroot/create_base_files|
 %step/sysroot/ldd_cache|none_status
 %step/sysroot/distro_info|none_status
-%step/boot/linux-kernel|%config=la32s
-%step/boot/initramfs-for-squashfs|%config=la32s;none_status
+%step/boot/linux-kernel|%config=loongarch32
+%step/boot/initramfs-for-squashfs|%config=loongarch32;none_status
 %step/boot/bootimage-squashfs|none_status
 %step/boot/dist_boot|
 %step/toolchain/NULL|g_opt+host-dist

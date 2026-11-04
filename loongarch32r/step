@@ -45,6 +45,7 @@
 %step/host-tools/tcl|
 %step/host-tools/pefile|
 %step/host-tools/util-linux|
+%step/cross-tools/perl-Devel-CheckLib|
 %step/sysroot/man-pages|
 %step/sysroot/iana-etc|
 %step/sysroot/tzdata|
@@ -238,8 +239,8 @@
 %step/sysroot/create_base_files|
 %step/sysroot/ldd_cache|none_status
 %step/sysroot/distro_info|none_status
-%step/boot/linux-kernel|%config=la32r
-%step/boot/initramfs-for-squashfs|%config=la32r;none_status
+%step/boot/linux-kernel|%config=loongarch32r
+%step/boot/initramfs-for-squashfs|%config=loongarch32r;none_status
 %step/boot/bootimage-squashfs|none_status
 %step/boot/dist_boot|
 %step/toolchain/NULL|g_opt+host-dist
