@@ -26,19 +26,25 @@ git clone https://github.com/sunhaiyong1978/Yongbao-Embedded.git --depth 1
 ### Fedora系统：
 
 ```sh
-sudo dnf install @c-development gawk gettext vim wget autoconf texinfo file flex bison \
-		rsync pkg-config cmake ninja tcl gperf patch openssl icu \
-		zlib-devel python3-devel libunistring-devel libffi-devel gc-devel libicu-devel glib2-devel gettext-devel \
-		glibc-static glib2-static zlib-static \
-		expat-devel perl-open perl-FindBin
+sudo dnf install @c-development ca-certificates fuse-overlayfs glibc-langpack-zh sudo \
+		gawk gettext vim wget autoconf texinfo flex bison rsync pkg-config \
+		cmake ninja tcl gperf patch openssl icu which git curl kmod bc xmlto \
+		groff doxygen patchelf squashfs-tools perl-lib perl-open perl-FindBin \
+		zlib-devel python3 python3-devel libunistring-devel libffi-devel gc-devel \
+		glib2-devel gettext-devel gmp-devel mpfr-devel libmpc-devel libxml2-devel \
+		pcre2-devel libyaml-devel openssl-devel glibc-static glib2-static zlib-static \
+		expat-devel
 ```
 
 ### Ubuntu系统：
 
 ```sh
-sudo apt-get install build-essential gawk gettext vim wget autoconf texinfo file flex bison \
-		rsync pkg-config cmake ninja-build autopoint tcl gperf \
-		zlib1g-dev python3-dev libunistring-dev libffi-dev libgc-dev libicu-dev libglib2.0-dev
+sudo apt-get install build-essential ca-certificates locales fuse-overlayfs sudo gawk \
+		gettext vim wget autoconf texinfo file flex bison rsync pkg-config \
+		cmake ninja-build autopoint tcl gperf git cpio bc util-linux zstd \
+		zlib1g-dev python3 python3-dev libunistring-dev libffi-dev libgc-dev \
+		libicu-dev libglib2.0-dev libgmp-dev libmpfr-dev libmpc-dev libexpat1-dev \
+		libssl-dev libpcre2-dev libxml2-dev libyaml-dev
 ```
 
 ## 基本使用方式：
