@@ -1,0 +1,75 @@
+# syntax=docker/dockerfile:1.14
+
+# ============================================================
+# Stage 1: host-tools 构建阶段
+# 执行 ./build.sh host-tools，生成通用软件包组
+# ============================================================
+FROM --platform=linux/amd64 ubuntu:22.04 AS host-tools-amd64
+FROM --platform=linux/loong64 ghcr.io/fedora-remix-loongarch/mini-image:f43 AS host-tools-loong64
+
+FROM host-tools-${TARGETARCH} AS host-tools
+ARG ARCH=loongarch32
+ARG TARGETARCH
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN if [ "${TARGETARCH}" = "amd64" ]; then \
+        apt-get update && apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            locales \
+            gettext-base \
+            autoconf \
+            gawk \
+            zlib1g-dev \
+            libgmp-dev libmpfr-dev libmpc-dev gnat gprbuild \
+            libexpat1-dev \
+            libssl-dev \
+            flex bison \
+            libpcre2-dev libffi-dev \
+            libxml2-dev \
+            cmake \
+            libyaml-dev \
+            git \
+            curl \
+            wget \
+            python3 \
+            pkg-config \
+            && locale-gen zh_CN.UTF-8 \
+            && rm -rf /var/lib/apt/lists/* ; \
+    elif [ "${TARGETARCH}" = "loong64" ]; then \
+        dnf update -y && dnf install -y \
+            @c-development \
+            gawk gettext vim wget curl autoconf \
+            texinfo flex bison rsync pkg-config cmake ninja gperf patch openssl git kmod \
+            zlib-devel python3-devel libffi-devel glib2-devel gettext-devel expat-devel \
+            gmp-devel mpfr-devel libmpc-devel libxml2-devel pcre2-devel libyaml-devel \
+            fuse-overlayfs xmlto groff doxygen patchelf squashfs-tools \
+            glibc-langpack-zh ; \
+    else \
+        echo "Unsupported architecture: ${TARGETARCH}" >&2; \
+        exit 1; \
+    fi
+
+WORKDIR /src
+COPY . .
+RUN mkdir -p ./${ARCH}/downloads ./${ARCH}/workbase \
+    && mkdir -p ./host-tools-cache/host-tools ./host-tools-cache/status \
+    && mv ./download_packages-cache/* ./${ARCH}/downloads/ \
+    && mv ./host-tools-cache/host-tools ./${ARCH}/workbase/ \
+    && mv ./host-tools-cache/status ./${ARCH}/workbase/
+
+RUN chmod +x ./${ARCH}/build.sh \
+    && cd ./${ARCH} \
+    && ./build.sh -l bootstrap \
+    && ./build.sh -l host-tools
+
+# host-tools 产物统一收集到 /output/host-tools
+# RUN mkdir -p /output/host-tools /output/status/{host-tools,bootstrap} \
+RUN mkdir -p /output/host-tools/status/host-tools /output/host-tools/host-tools \
+    && cp -a ./${ARCH}/workbase/host-tools/. /output/host-tools/host-tools/ \
+    && cp -a ./${ARCH}/workbase/status/host-tools/. /output/host-tools/status/host-tools/
+
+
+FROM scratch AS host-tools-builder
+COPY --from=host-tools /output/host-tools/. /
