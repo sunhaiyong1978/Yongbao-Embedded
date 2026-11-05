@@ -8,6 +8,8 @@ export RESOURCEDIR=${NEW_TARGET_SYSDIR}/files/sysroot/XML-Parser/2.59/
 rm -rf ${BUILD_DIRECTORY}/XML-Parser-2.59
 tar xvf ${DOWNLOADDIR}/XML-Parser-2.59.tar.gz -C ${BUILD_DIRECTORY} 
 pushd ${BUILD_DIRECTORY}/XML-Parser-2.59
+    sed -i.bak '/^use Devel::CheckLib/a sub check_lib { return 1; }' Makefile.PL
+
     ${CROSSTOOLS_DIR}/bin/perl Makefile.PL CC=${CROSS_TARGET}-gcc LD=${CROSS_TARGET}-ld
     sed -i "/^INSTALL/s@${CROSSTOOLS_DIR}@/usr@g" Makefile Expat/Makefile
     sed -i "/^PERL_INC/s@${CROSSTOOLS_DIR}@${SYSROOT_DIR}/usr@g" Makefile Expat/Makefile
