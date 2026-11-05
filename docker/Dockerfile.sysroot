@@ -1,0 +1,111 @@
+# # syntax=docker/dockerfile:1-labs
+
+# ============================================================
+# linux sysroot 构建阶段
+# 执行 ./build.sh ，生成目标架构的sysroot
+# ============================================================
+FROM --platform=linux/amd64 ubuntu:22.04 AS sysroot-amd64
+FROM --platform=linux/loong64 ghcr.io/fedora-remix-loongarch/mini-image:f43 AS sysroot-loong64
+
+FROM sysroot-${TARGETARCH} AS sysroot
+
+SHELL ["/bin/bash", "-c"]
+
+ARG ARCH=loongarch32
+ARG TARGETARCH
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN if [ "${TARGETARCH}" = "amd64" ]; then \
+        apt-get update && apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            locales \
+            fuse-overlayfs \
+            wget gawk gettext sudo cpio \
+            autoconf \
+            zlib1g-dev \
+            rsync \
+            bison python3 \
+            libexpat1-dev \
+            libunistring-dev \
+            libffi-dev \
+            libgc-dev \
+            cmake \
+            libglib2.0-dev \
+            git \
+            flex \
+            tcl \
+            texinfo \
+            gperf \
+            libssl-dev \
+            autopoint \
+            bc util-linux zstd \
+            pkg-config \
+            && locale-gen zh_CN.UTF-8 \
+            && rm -rf /var/lib/apt/lists/* ; \
+    elif [ "${TARGETARCH}" = "loong64" ]; then \
+        dnf update -y && dnf install -y \
+            @c-development \
+            ca-certificates \
+            fuse-overlayfs \
+            wget gawk gettext sudo patch \
+            autoconf \
+            zlib-devel \
+            rsync \
+            bison python3 \
+            perl-lib perl-open perl-FindBin \
+            expat-devel \
+            libunistring-devel \
+            libffi-devel \
+            gc-devel \
+            which \
+            cmake \
+            glib2-devel \
+            git \
+            tcl \
+            texinfo \
+            gperf \
+            openssl-devel \
+            openssl \
+            bc \
+            pkg-config \
+            glibc-langpack-zh ; \
+    else \
+        echo "Unsupported architecture: ${TARGETARCH}" >&2; \
+        exit 1; \
+    fi
+
+WORKDIR /src
+COPY . .
+
+RUN mkdir -p ./download_packages-cache/foo
+
+RUN mkdir -p ./${ARCH}/workbase/status/{sysroot,cross-tools,host-tools} \
+    ./${ARCH}/workbase/notice/{sysroot,cross-tools,host-tools} \
+    ./${ARCH}/workbase/overlaydir/sysroot \
+    ./${ARCH}/workbase/cross-tools \
+    ./${ARCH}/workbase/common_files \
+    ./${ARCH}/downloads
+
+RUN mv ./download_packages-cache/* ./${ARCH}/downloads/
+
+RUN if [ -f ./linux_sysroot_${ARCH}-cache/sysroot.tar.gz ]; then \
+       tar xf ./linux_sysroot_${ARCH}-cache/sysroot.tar.gz -C . ; \
+    fi
+
+RUN --security=insecure chmod +x ./${ARCH}/build.sh \
+    && cd ./${ARCH} \
+    && ./build.sh -l -p
+
+# linux sysroot 产物统一收集到 /output/linux_sysroot
+RUN mkdir -p /output/linux_sysroot \
+    && if [ -d ./${ARCH}/workbase/collect ]; then \
+           cp -a ./${ARCH}/workbase/collect /output/linux_sysroot/ ; \
+       fi \
+    && tar -czf /output/linux_sysroot/sysroot.tar.gz ./${ARCH}/workbase/overlaydir/sysroot \
+        ./${ARCH}/workbase/cross-tools ./${ARCH}/workbase/status/{sysroot,cross-tools,host-tools} \
+        ./${ARCH}/workbase/common_files ./${ARCH}/workbase/notice/{sysroot,cross-tools,host-tools}
+
+FROM scratch AS sysroot-builder
+COPY --from=sysroot /output/linux_sysroot/. /
