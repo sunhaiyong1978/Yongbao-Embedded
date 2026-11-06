@@ -81,9 +81,10 @@ COPY . .
 
 RUN mkdir -p ./download_packages-cache/foo
 
-RUN mkdir -p ./${ARCH}/workbase/status/{sysroot,cross-tools,host-tools} \
-    ./${ARCH}/workbase/notice/{sysroot,cross-tools,host-tools} \
+RUN mkdir -p ./${ARCH}/workbase/status/{sysroot,cross-tools,host-tools,boot} \
+    ./${ARCH}/workbase/notice/{sysroot,cross-tools,host-tools,boot} \
     ./${ARCH}/workbase/overlaydir/sysroot \
+    ./${ARCH}/workbase/dist \
     ./${ARCH}/workbase/cross-tools \
     ./${ARCH}/workbase/common_files \
     ./${ARCH}/downloads
@@ -96,7 +97,7 @@ RUN if [ -f ./linux_sysroot_${ARCH}-cache/sysroot.tar.gz ]; then \
 
 RUN --security=insecure chmod +x ./${ARCH}/build.sh \
     && cd ./${ARCH} \
-    && ./build.sh -l -p
+    && ./build.sh -p
 
 # linux sysroot 产物统一收集到 /output/linux_sysroot
 RUN mkdir -p /output/linux_sysroot \
@@ -104,8 +105,9 @@ RUN mkdir -p /output/linux_sysroot \
            cp -a ./${ARCH}/workbase/collect /output/linux_sysroot/ ; \
        fi \
     && tar -czf /output/linux_sysroot/sysroot.tar.gz ./${ARCH}/workbase/overlaydir/sysroot \
-        ./${ARCH}/workbase/cross-tools ./${ARCH}/workbase/status/{sysroot,cross-tools,host-tools} \
-        ./${ARCH}/workbase/common_files ./${ARCH}/workbase/notice/{sysroot,cross-tools,host-tools}
+        ./${ARCH}/workbase/dist \
+        ./${ARCH}/workbase/cross-tools ./${ARCH}/workbase/status/{sysroot,cross-tools,host-tools,boot} \
+        ./${ARCH}/workbase/common_files ./${ARCH}/workbase/notice/{sysroot,cross-tools,host-tools,boot}
 
 FROM scratch AS sysroot-builder
 COPY --from=sysroot /output/linux_sysroot/. /
